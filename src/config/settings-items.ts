@@ -377,6 +377,11 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
         section: 'settingsSectionProxyDisplay',
       },
       {
+        key: `${SETTINGS_MENU_KEY.proxies}.customGlobalNode`,
+        label: 'customGlobalNode',
+        section: 'settingsSectionProxyDisplay',
+      },
+      {
         key: `${SETTINGS_MENU_KEY.proxies}.proxyPreviewType`,
         label: 'proxyPreviewType',
         section: 'settingsSectionProxyDisplay',
@@ -438,6 +443,24 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
         key: `${SETTINGS_MENU_KEY.connections}.sourceIPLabels`,
         label: 'sourceIPLabels',
         section: 'settingsSectionClientIdentity',
+      },
+      {
+        key: `${SETTINGS_MENU_KEY.connections}.showDetourInnerConnections`,
+        label: 'showDetourInnerConnections',
+        section: 'settingsSectionClientIdentity',
+        keywords: ['inner', 'detour', 'chain', 'dialer'],
+      },
+      {
+        key: `${SETTINGS_MENU_KEY.connections}.autoDetectDetourByName`,
+        label: 'autoDetectDetourByName',
+        section: 'settingsSectionClientIdentity',
+        keywords: ['inner', 'detour', 'chain', 'dialer'],
+      },
+      {
+        key: `${SETTINGS_MENU_KEY.connections}.proxyDetourMappings`,
+        label: 'proxyDetourMappings',
+        section: 'settingsSectionClientIdentity',
+        keywords: ['inner', 'detour', 'chain', 'dialer'],
       },
     ],
   },

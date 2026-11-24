@@ -1,6 +1,7 @@
 import { activeConnections, connectionAccessor, disconnectById } from '@/assembly/connections'
 import { driver } from '@/assembly/driver'
 import { GLOBAL, IPV6_TEST_URL, NOT_CONNECTED, PROXY_TYPE } from '@/constant'
+import { getConnectionDetourChainGroups } from '@/helper/detour-chain'
 import { notifyRequestError } from '@/helper/request-error'
 import { automaticDisconnection, iconReflectList, IPv6test } from '@/store/settings'
 
@@ -100,7 +101,11 @@ export const handlerProxySelect = async (proxyGroupName: string, proxyName: stri
 
     if (automaticDisconnection.value) {
       activeConnections.value
-        .filter((c) => connectionAccessor().chains(c).includes(proxyGroupName))
+        .filter(
+          (c) =>
+            connectionAccessor().chains(c).includes(proxyGroupName) ||
+            getConnectionDetourChainGroups(c).includes(proxyGroupName),
+        )
         .forEach((c) => disconnectById(c.id).catch(() => {}))
     }
     fetchProxies()

@@ -10,6 +10,7 @@ import {
   FONTS,
   GEOIP_ASN_DATABASE_URL,
   GEOIP_COUNTRY_DATABASE_URL,
+  GLOBAL,
   IP_INFO_API,
   IS_APPLE_DEVICE,
   LANG,
@@ -28,7 +29,7 @@ import {
   type THEME,
 } from '@/constant'
 import { getMinCardWidth, isMiddleScreen, isPreferredDark } from '@/helper/utils'
-import type { SourceIPLabel } from '@/types'
+import type { ProxyDetourRule, SourceIPLabel } from '@/types'
 import { computed } from 'vue'
 
 const migrateLegacyStorageKey = (legacyKey: string, nextKey: string) => {
@@ -355,6 +356,7 @@ export const minProxyCardWidth = useStorage<number>(
 export const manageHiddenGroup = useStorage('config/manage-hidden-group-mode', false)
 
 export const displayGlobalByMode = useStorage('config/display-global-by-mode', false)
+export const customGlobalNode = useStorage('config/custom-global-node', GLOBAL)
 
 export const proxyGroupIconSize = useStorage('config/proxy-group-icon-size', 24)
 export const proxyGroupIconMargin = useStorage('config/proxy-group-icon-margin', 6)
@@ -417,6 +419,9 @@ export const connectionCardLines = useStorage<CONNECTIONS_TABLE_ACCESSOR_KEY[][]
 
 export const sourceIPLabelList = useStorage<SourceIPLabel[]>('config/source-ip-label-list', [])
 export const resolveClientHostname = useStorage('config/resolve-client-hostname', false)
+export const proxyDetourList = useStorage<ProxyDetourRule[]>('config/proxy-detour-list', [])
+export const autoDetectDetourByName = useStorage('config/auto-detect-detour-by-name', true)
+export const showDetourInnerConnections = useStorage('config/show-detour-inner-connections', true)
 
 export const displayNowNodeInRule = useStorage('config/display-now-node-in-rule', true)
 export const displayLatencyInRule = useStorage('config/display-latency-in-rule', true)

@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import HighlightText from '@/components/common/HighlightText.vue'
 import { proxyMap } from '@/assembly/proxies'
+import { getEffectiveDialerProxy } from '@/helper/detour-chain'
 import { computed } from 'vue'
 import ProxyIcon from './ProxyIcon.vue'
 
@@ -52,6 +53,6 @@ const icon = computed(() => {
   return node.value?.icon
 })
 const dialerProxy = computed(() => {
-  return node.value?.['dialer-proxy']
+  return getEffectiveDialerProxy(props.name)
 })
 </script>

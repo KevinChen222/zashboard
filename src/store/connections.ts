@@ -23,6 +23,7 @@ import {
   getInboundUserFromConnection,
   getNetworkTypeFromConnection,
 } from '@/helper'
+import { getRealConnectionId, withDetourInnerConnections } from '@/helper/detour-chain'
 import { toSearchRegex } from '@/helper/search'
 import type { Connection } from '@/types'
 import { computed, ref } from 'vue'
@@ -94,18 +95,20 @@ const sortKeyFunctionMap: Record<SORT_TYPE, (connection: Connection) => string |
 
 export const connections = computed(() => {
   if (connectionTabShow.value === CONNECTION_TAB_TYPE.ACTIVE) {
-    return activeConnections.value
+    return withDetourInnerConnections(activeConnections.value)
   }
 
-  return showClosedOnly.value
+  const base = showClosedOnly.value
     ? closedConnections.value
     : closedConnections.value.concat(activeConnections.value)
+
+  return withDetourInnerConnections(base)
 })
 
 const closedConnectionIds = computed(() => new Set(closedConnections.value.map((conn) => conn.id)))
 
 export const isClosedConnection = (connection: Connection) =>
-  closedConnectionIds.value.has(connection.id)
+  closedConnectionIds.value.has(getRealConnectionId(connection.id))
 
 const filterConnections = (items: readonly Connection[]) => {
   const searchRegex = toSearchRegex(connectionFilter.value)

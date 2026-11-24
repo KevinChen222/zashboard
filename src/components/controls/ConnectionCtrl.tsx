@@ -19,6 +19,7 @@ import {
   hasExpandedConnectionCardGroups,
   toggleAllConnectionCardGroups,
 } from '@/helper/connection-card-groups'
+import { getRealConnectionId } from '@/helper/detour-chain'
 import {
   connectionCardGroupKey,
   connectionFilter,
@@ -66,7 +67,9 @@ const handlerClickCloseAll = () => {
     return
   }
 
-  if (targets.length === activeConnections.value.length) {
+  const realTargetIds = Array.from(new Set(targets.map((conn) => getRealConnectionId(conn.id))))
+
+  if (realTargetIds.length === activeConnections.value.length) {
     disconnectAll()
     return
   }
@@ -76,6 +79,7 @@ const handlerClickCloseAll = () => {
   if (
     can('connectionsFilterClose') &&
     sourceIPs?.length === 1 &&
+    sourceIPs[0] !== '' &&
     !connectionFilter.value &&
     !quickFilterEnabled.value
   ) {
@@ -83,8 +87,8 @@ const handlerClickCloseAll = () => {
     return
   }
 
-  targets.forEach((conn) => {
-    disconnectById(conn.id)
+  realTargetIds.forEach((id) => {
+    disconnectById(id)
   })
 }
 

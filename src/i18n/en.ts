@@ -652,6 +652,20 @@ const en = {
   daeGeneration: 'Generation',
   daeConfigRevision: 'Config revision',
   daeMissingInputs: 'Missing inputs',
+  customGlobalNode: 'Custom Global Node',
+  sameConnectionLogs: 'Same Connection Logs',
+  showDetourInnerConnections: 'Show Chained Inner Connections',
+  showDetourInnerConnectionsTip:
+    'Synthesize Inner relay connections for mapped detour proxies so you can filter by Inner on the Connections page to inspect relay chains',
+  autoDetectDetourByName: 'Auto-detect Relay Pairs',
+  autoDetectDetourByNameTip:
+    'Automatically map prefixes/providers ending with "落地" to the matching "跳板" relay group',
+  proxyDetourMappings: 'Proxy Detour Mappings',
+  proxyDetourMappingsTip:
+    'Map a provider name, node prefix, or /regex to its upstream detour group (first match wins)',
+  proxyDetourMatchPlaceholder: 'Provider / Prefix / /Regex',
+  proxyDetourTargetPlaceholder: 'Upstream detour group or node',
+  autoDetectDetourImport: 'Auto-import',
 }
 
 export type LANG_MESSAGE = typeof en

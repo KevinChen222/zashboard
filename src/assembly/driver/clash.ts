@@ -39,6 +39,7 @@ import {
 } from '@/api/clash'
 import { proxyMap } from '@/assembly/proxies/state'
 import { PROXY_TYPE } from '@/constant'
+import { getRealConnectionId } from '@/helper/detour-chain'
 import type { ClashConnectionRawMessage, Connection, Log } from '@/types'
 import { head } from 'lodash'
 import { shallowRef, watch } from 'vue'
@@ -94,11 +95,15 @@ const accessor: ConnectionAccessor = {
   host: (connection) => {
     const clash = asClash(connection)
     const host = getHostname(clash)
+    const port = clash.metadata.destinationPort
 
-    if (host.includes(':')) {
-      return `[${host}]:${clash.metadata.destinationPort}`
+    if (!port) {
+      return host
     }
-    return `${host}:${clash.metadata.destinationPort}`
+    if (host.includes(':')) {
+      return `[${host}]:${port}`
+    }
+    return `${host}:${port}`
   },
   process: (connection) => {
     const { metadata } = asClash(connection)
@@ -176,12 +181,12 @@ export const clashDriver: Driver = {
     fetch: async () => {
       const [proxyRes, providerRes] = await Promise.all([
         fetchProxiesAPI(),
-        fetchProxyProviderAPI(),
+        fetchProxyProviderAPI().catch(() => ({ data: { providers: {} } })),
       ])
 
       return {
-        proxies: proxyRes.data.proxies,
-        providers: Object.values(providerRes.data.providers).filter(
+        proxies: proxyRes.data.proxies ?? {},
+        providers: Object.values(providerRes.data.providers ?? {}).filter(
           (provider) => provider.name !== 'default' && provider.vehicleType !== 'Compatible',
         ),
       }
@@ -202,10 +207,13 @@ export const clashDriver: Driver = {
 
   rules: {
     fetch: async () => {
-      const [ruleRes, providerRes] = await Promise.all([fetchRulesAPI(), fetchRuleProvidersAPI()])
+      const [ruleRes, providerRes] = await Promise.all([
+        fetchRulesAPI(),
+        fetchRuleProvidersAPI().catch(() => ({ data: { providers: {} } })),
+      ])
 
       return {
-        rules: ruleRes.data.rules.map((rule) => {
+        rules: (ruleRes.data.rules ?? []).map((rule) => {
           const proxy = rule.proxy
 
           return {
@@ -213,7 +221,7 @@ export const clashDriver: Driver = {
             proxy: proxy.startsWith('route(') ? proxy.slice(6, -1) : proxy,
           }
         }),
-        providers: Object.values(providerRes.data.providers),
+        providers: Object.values(providerRes.data.providers ?? {}),
       }
     },
     updateProvider: (name) => done(updateRuleProviderAPI(name)),
@@ -257,8 +265,8 @@ export const clashDriver: Driver = {
   connections: {
     accessor,
     subscribe: subscribeConnections,
-    disconnect: (id) => done(disconnectClashByIdAPI(id)),
+    disconnect: (id) => done(disconnectClashByIdAPI(getRealConnectionId(id))),
     disconnectAll: () => done(disconnectAllClashAPI()),
-    block: (id) => done(blockConnectionByIdAPI(id)),
+    block: (id) => done(blockConnectionByIdAPI(getRealConnectionId(id))),
   },
 }

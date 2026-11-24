@@ -637,6 +637,18 @@ const zh: LANG_MESSAGE = {
   daeGeneration: '配置代次',
   daeConfigRevision: '配置版本',
   daeMissingInputs: '缺失输入',
+  customGlobalNode: '自定义全局节点',
+  sameConnectionLogs: '同一连接日志',
+  showDetourInnerConnections: '显示链式 Inner 连接',
+  showDetourInnerConnectionsTip:
+    '为配置了链式代理映射的连接生成 Inner 跳板连接，可在连接页来源筛选中选择 Inner 单独查看跳板代理链',
+  autoDetectDetourByName: '自动识别落地/跳板映射',
+  autoDetectDetourByNameTip: '自动将「XX落地」前缀或代理集映射到同名「XX跳板」策略组',
+  proxyDetourMappings: '链式代理映射',
+  proxyDetourMappingsTip: '将节点前缀、代理集名或 /正则 映射到对应跳板组（自上而下优先匹配）',
+  proxyDetourMatchPlaceholder: '代理集 / 节点前缀 / /正则',
+  proxyDetourTargetPlaceholder: '前置跳板组或节点名',
+  autoDetectDetourImport: '自动导入',
 }
 
 export default zh

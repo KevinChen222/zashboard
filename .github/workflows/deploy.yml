@@ -1,91 +1,63 @@
-name: Build and Deploy
+name: Build and Release
 
 on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  release-please:
+  check:
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-
-    steps:
-      - name: release-please
-        id: release
-        uses: googleapis/release-please-action@v5
-        with:
-          token: ${{ secrets.PAT }}
-          release-type: node
-          target-branch: main
-
-  build-and-deploy:
-    needs: release-please
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        # Each font variant is published to its own gh-pages branch.
-        font:
-          - { key: all, suffix: '' }
-          - { key: cdn, suffix: '-cdn-fonts' }
-          - { key: firasans, suffix: '-firasans-only' }
-          - { key: misans, suffix: '-misans-only' }
-          - { key: pingfang, suffix: '-pingfang-only' }
-          - { key: sarasa, suffix: '-sarasa-only' }
-          - { key: none, suffix: '-no-fonts' }
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
       - uses: pnpm/action-setup@v6
-
-      - name: Install and Build 🔧
-        env:
-          FONT: ${{ matrix.font.key }}
-        run: |
-          pnpm i
-          pnpm run build
-          echo 'board.zash.run.place' > ./dist/CNAME
-
-      - name: Deploy 🚀
-        uses: peaceiris/actions-gh-pages@v4
+      - uses: actions/setup-node@v6
         with:
-          github_token: ${{ secrets.PAT }}
-          publish_dir: ./dist
-          publish_branch: gh-pages${{ matrix.font.suffix }}
-          force_orphan: true
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test, Type check & Lint
+        run: |
+          pnpm run test:detour
+          pnpm run type-check
+          pnpm run lint
+
+      - name: Build check
+        run: pnpm run build
 
   release-dist:
-    needs: release-please
+    needs: check
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    if: ${{ needs.release-please.outputs.release_created }}
     strategy:
       fail-fast: false
       matrix:
         font:
           - { key: all, suffix: '' }
-          - { key: cdn, suffix: '-cdn-fonts' }
-          - { key: firasans, suffix: '-firasans-only' }
           - { key: misans, suffix: '-misans-only' }
-          - { key: pingfang, suffix: '-pingfang-only' }
-          - { key: sarasa, suffix: '-sarasa-only' }
           - { key: none, suffix: '-no-fonts' }
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
       - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
 
-      - name: Build and Zip the dist folder
+      - name: Build and zip dist
         env:
           FONT: ${{ matrix.font.key }}
         run: |
-          pnpm i
+          pnpm install --frozen-lockfile
           pnpm run build
           zip -r dist${{ matrix.font.suffix }}.zip dist
 
@@ -93,39 +65,4 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: dist${{ matrix.font.suffix }}.zip
-          tag_name: ${{ needs.release-please.outputs.tag_name }}
-
-  release-image:
-    needs: release-please
-    runs-on: ubuntu-latest
-    if: ${{ needs.release-please.outputs.release_created }}
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: set up QEMU
-        uses: docker/setup-qemu-action@v4
-
-      - name: set up docker buildx
-        uses: docker/setup-buildx-action@v4
-        id: buildx
-
-      - name: login to ghcr.io
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.PAT }}
-
-      - name: build and publish ghcr.io docker image
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          builder: ${{ steps.buildx.outputs.name }}
-          file: Dockerfile
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
-          push: true
-          tags: |
-            ghcr.io/zephyruso/zashboard:latest
-            ghcr.io/zephyruso/zashboard:${{ needs.release-please.outputs.tag_name }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          generate_release_notes: true

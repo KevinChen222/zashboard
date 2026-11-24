@@ -188,6 +188,13 @@ export type SourceIPLabel = {
   scope?: string[]
 }
 
+export type ProxyDetourRule = {
+  match: string
+  detour: string
+  id: string
+  scope?: string[]
+}
+
 export interface NodeRank {
   Name: string
   Rank: string

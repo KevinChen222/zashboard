@@ -637,6 +637,18 @@ const zhTW: LANG_MESSAGE = {
   daeGeneration: '設定代次',
   daeConfigRevision: '設定版本',
   daeMissingInputs: '缺少輸入',
+  customGlobalNode: '自訂全域節點',
+  sameConnectionLogs: '同一連線日誌',
+  showDetourInnerConnections: '顯示鏈式 Inner 連線',
+  showDetourInnerConnectionsTip:
+    '為設定了鏈式代理對應的連線產生 Inner 跳板連線，可在連線頁來源篩選中選擇 Inner 單獨檢視跳板代理鏈',
+  autoDetectDetourByName: '自動識別落地/跳板對應',
+  autoDetectDetourByNameTip: '自動將「XX落地」前綴或代理集對應到同名「XX跳板」策略組',
+  proxyDetourMappings: '鏈式代理對應',
+  proxyDetourMappingsTip: '將節點前綴、代理集名或 /正則 對應到跳板組（由上而下優先匹配）',
+  proxyDetourMatchPlaceholder: '代理集 / 節點前綴 / /正則',
+  proxyDetourTargetPlaceholder: '前置跳板組或節點名',
+  autoDetectDetourImport: '自動匯入',
 }
 
 export default zhTW

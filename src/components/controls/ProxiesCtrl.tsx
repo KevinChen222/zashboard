@@ -1,5 +1,6 @@
 import { can } from '@/assembly/backend'
 import { configs, updateConfigs } from '@/assembly/config'
+import { activeConnections, disconnectById } from '@/assembly/connections'
 import {
   allProxiesLatencyTest,
   fetchProxies,
@@ -10,6 +11,7 @@ import {
 } from '@/assembly/proxies'
 import { useCtrlsBar } from '@/composables/use-ctrls-bar'
 import { PROXY_SORT_TYPE, PROXY_TAB_TYPE, ROUTE_NAME, SETTINGS_MENU_KEY } from '@/constant'
+import { getConnectionRule } from '@/helper'
 import { renderProxiesPageItems } from '@/helper/proxies'
 import { isProxyNodeSearchMode, toggleProxySearchMode } from '@/helper/proxy-search'
 import { getMinCardWidth } from '@/helper/utils'
@@ -93,6 +95,13 @@ export default defineComponent({
 
     const handlerModeChange = (mode: string) => {
       updateConfigs({ mode })
+      if (can('disconnectOnModeChange') && automaticDisconnection.value) {
+        activeConnections.value.forEach((connection) => {
+          if (getConnectionRule(connection).includes('clash_mode')) {
+            disconnectById(connection.id).catch(() => {})
+          }
+        })
+      }
     }
 
     const handlerClickLatencyTestAll = async () => {
@@ -164,7 +173,7 @@ export default defineComponent({
             <ArrowPathIcon class={['h-4 w-4', isUpgrading.value && 'animate-spin']} />
           </button>
         )
-      const modeSelect = configs.value && can('configPatch') && (
+      const modeSelect = configs.value && can('modeSwitch') && (
         <SelectInput
           class={['select select-sm', isLargeCtrlsBar.value ? 'min-w-40' : 'min-w-24']}
           modelValue={configs.value.mode}

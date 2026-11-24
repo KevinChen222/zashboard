@@ -655,6 +655,20 @@ const ru: LANG_MESSAGE = {
   daeGeneration: 'Поколение',
   daeConfigRevision: 'Ревизия конфигурации',
   daeMissingInputs: 'Не хватает данных',
+  customGlobalNode: 'Пользовательский глобальный узел',
+  sameConnectionLogs: 'Логи этого соединения',
+  showDetourInnerConnections: 'Показывать цепочки Inner',
+  showDetourInnerConnectionsTip:
+    'Создавать Inner-соединения для настроенных цепочек прокси, чтобы просматривать их через фильтр Inner на странице соединений',
+  autoDetectDetourByName: 'Автоопределение пар цепочек',
+  autoDetectDetourByNameTip:
+    'Автоматически связывать провайдеры/префиксы с суффиксом «落地» и соответствующей группой «跳板»',
+  proxyDetourMappings: 'Правила цепочек прокси',
+  proxyDetourMappingsTip:
+    'Сопоставление имени провайдера, префикса узла или /regex с группой-ретранслятором',
+  proxyDetourMatchPlaceholder: 'Провайдер / Префикс / /Regex',
+  proxyDetourTargetPlaceholder: 'Группа или узел ретрансляции',
+  autoDetectDetourImport: 'Автоимпорт',
 }
 
 export default ru

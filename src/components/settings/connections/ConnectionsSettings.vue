@@ -65,6 +65,35 @@
           />
         </SettingItem>
         <SourceIPLabels :setting-key="k.sourceIPLabels" />
+        <SettingItem :setting-key="k.showDetourInnerConnections">
+          <div class="setting-item-label">
+            {{ $t('showDetourInnerConnections') }}
+            <QuestionMarkCircleIcon
+              class="h-4 w-4 cursor-pointer"
+              @mouseenter="showTip($event, $t('showDetourInnerConnectionsTip'))"
+            />
+          </div>
+          <input
+            v-model="showDetourInnerConnections"
+            type="checkbox"
+            class="toggle"
+          />
+        </SettingItem>
+        <SettingItem :setting-key="k.autoDetectDetourByName">
+          <div class="setting-item-label">
+            {{ $t('autoDetectDetourByName') }}
+            <QuestionMarkCircleIcon
+              class="h-4 w-4 cursor-pointer"
+              @mouseenter="showTip($event, $t('autoDetectDetourByNameTip'))"
+            />
+          </div>
+          <input
+            v-model="autoDetectDetourByName"
+            type="checkbox"
+            class="toggle"
+          />
+        </SettingItem>
+        <ProxyDetourMappings :setting-key="k.proxyDetourMappings" />
       </div>
     </template>
   </div>
@@ -72,9 +101,11 @@
 
 <script setup lang="ts">
 import SelectInput from '@/components/common/SelectInput.vue'
+import ProxyDetourMappings from '@/components/settings/connections/ProxyDetourMappings.vue'
 import SourceIPLabels from '@/components/settings/connections/SourceIPLabels.vue'
 import SettingItem from '@/components/settings/SettingItem.vue'
 import { useIsSettingVisible } from '@/composables/use-setting-visibility'
+import { useTooltip } from '@/composables/use-tooltip'
 import { CONNECTIONS_ITEM_KEYS } from '@/config/settings-items'
 import {
   CONNECTION_DISPLAY_STYLE,
@@ -83,15 +114,19 @@ import {
   TABLE_WIDTH_MODE,
 } from '@/constant'
 import {
+  autoDetectDetourByName,
   connectionDisplayStyle,
   isConnectionCard,
   proxyChainDirection,
   resolveClientHostname,
+  showDetourInnerConnections,
   tableSize,
   tableWidthMode,
 } from '@/store/settings'
+import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import { computed } from 'vue'
 
+const { showTip } = useTooltip()
 const k = CONNECTIONS_ITEM_KEYS
 const isVisibleConnectionStyle = useIsSettingVisible(k.connectionStyle)
 const isVisibleProxyChain = useIsSettingVisible(k.proxyChainDirection)
@@ -99,6 +134,9 @@ const isVisibleTableWidth = useIsSettingVisible(k.tableWidthMode)
 const isVisibleTableSize = useIsSettingVisible(k.tableSize)
 const isVisibleResolveHostname = useIsSettingVisible(k.resolveClientHostname)
 const isVisibleSourceLabels = useIsSettingVisible(k.sourceIPLabels)
+const isVisibleShowDetourInner = useIsSettingVisible(k.showDetourInnerConnections)
+const isVisibleAutoDetectDetour = useIsSettingVisible(k.autoDetectDetourByName)
+const isVisibleProxyDetourMappings = useIsSettingVisible(k.proxyDetourMappings)
 
 const hasVisibleDisplayItems = computed(
   () =>
@@ -107,6 +145,11 @@ const hasVisibleDisplayItems = computed(
     (!isConnectionCard.value && (isVisibleTableWidth.value || isVisibleTableSize.value)),
 )
 const hasVisibleIdentityItems = computed(
-  () => isVisibleResolveHostname.value || isVisibleSourceLabels.value,
+  () =>
+    isVisibleResolveHostname.value ||
+    isVisibleSourceLabels.value ||
+    isVisibleShowDetourInner.value ||
+    isVisibleAutoDetectDetour.value ||
+    isVisibleProxyDetourMappings.value,
 )
 </script>
