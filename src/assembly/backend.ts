@@ -43,6 +43,7 @@ export type Cap =
   | 'logTypeFilter'
   | 'logConnectionDetail'
   | 'singboxLogSimplify'
+  | 'singboxRulesFormat'
   | 'disconnectOnModeChange'
   | 'traceLogLevel'
   | 'extraLogLevels'
@@ -52,6 +53,8 @@ export type Cap =
   | 'proxyProviderUpdate'
   | 'proxyProviderHealthCheck'
   | 'ruleProviders'
+  | 'ruleDisableDisconnect'
+  | 'ruleHitCount'
   | 'flushDNSCache'
   | 'flushFakeIP'
   | 'dnsQuery'
@@ -93,6 +96,8 @@ const clashCaps = computed<Caps>(() => {
     updateGeoDatabase: mihomoOrForkCore,
     syncSettings: mihomoOrForkCore,
     independentLatency: mihomoOrForkCore,
+    ruleDisableDisconnect: mihomoOrForkCore,
+    ruleHitCount: mihomoOrForkCore,
     coreUpdateCheck: mihomo,
     configPatch: mihomo,
     modeSwitch: true,
@@ -101,6 +106,7 @@ const clashCaps = computed<Caps>(() => {
     logTypeFilter: singbox,
     logConnectionDetail: singbox,
     singboxLogSimplify: singbox,
+    singboxRulesFormat: singbox,
     disconnectOnModeChange: singbox,
 
     traceLogLevel: honk || singbox,

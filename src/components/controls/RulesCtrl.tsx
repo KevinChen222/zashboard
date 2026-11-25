@@ -1,9 +1,9 @@
 import { can } from '@/assembly/backend'
-import { fetchRules, ruleProviderList, rules, updateRuleProvider } from '@/assembly/rules'
+import { fetchRules, ruleProviderList, updateRuleProvider } from '@/assembly/rules'
 import { useCtrlsBar } from '@/composables/use-ctrls-bar'
 import { LIST_DISPLAY_STYLE, RULE_TAB_TYPE } from '@/constant'
 import { showNotification } from '@/helper/notification'
-import { rulesFilter, rulesTabShow } from '@/store/rules'
+import { dnsRules, hasSingboxDnsRules, routeRules, rulesFilter, rulesTabShow } from '@/store/rules'
 import {
   disconnectOnRuleDisable,
   displayLatencyInRule,
@@ -29,7 +29,9 @@ export default defineComponent({
     const hasProviders = computed(() => {
       return can('ruleProviders') && ruleProviderList.value.length > 0
     })
-    const showTabs = computed(() => hasProviders.value || can('routingTrace'))
+    const showTabs = computed(
+      () => hasProviders.value || hasSingboxDnsRules.value || can('routingTrace'),
+    )
 
     const handlerClickUpgradeAllProviders = async () => {
       if (isUpgrading.value) return
@@ -65,13 +67,19 @@ export default defineComponent({
     }
 
     const counts: Partial<Record<RULE_TAB_TYPE, () => number>> = {
-      [RULE_TAB_TYPE.RULES]: () => rules.value.length,
+      [RULE_TAB_TYPE.RULES]: () => routeRules.value.length,
+      [RULE_TAB_TYPE.DNS]: () => dnsRules.value.length,
       [RULE_TAB_TYPE.PROVIDER]: () => ruleProviderList.value.length,
     }
 
     const tabsWithNumbers = computed(() =>
       Object.values(RULE_TAB_TYPE)
-        .filter((type) => type !== RULE_TAB_TYPE.TRACE || can('routingTrace'))
+        .filter((type) => {
+          if (type === RULE_TAB_TYPE.DNS) return hasSingboxDnsRules.value
+          if (type === RULE_TAB_TYPE.PROVIDER) return hasProviders.value
+          if (type === RULE_TAB_TYPE.TRACE) return can('routingTrace')
+          return true
+        })
         .map((type) => ({ type, count: counts[type]?.() })),
     )
 
@@ -150,14 +158,16 @@ export default defineComponent({
                     v-model={displayLatencyInRule.value}
                   />
                 </div>
-                <div class="setting-item">
-                  <div class="setting-item-label">{t('disconnectOnRuleDisable')}</div>
-                  <input
-                    class="toggle"
-                    type="checkbox"
-                    v-model={disconnectOnRuleDisable.value}
-                  />
-                </div>
+                {can('ruleDisableDisconnect') && (
+                  <div class="setting-item">
+                    <div class="setting-item-label">{t('disconnectOnRuleDisable')}</div>
+                    <input
+                      class="toggle"
+                      type="checkbox"
+                      v-model={disconnectOnRuleDisable.value}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </DialogWrapper>

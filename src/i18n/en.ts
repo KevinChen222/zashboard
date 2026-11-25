@@ -117,6 +117,7 @@ const en = {
   darkTheme: 'Dark theme',
   proxyProvider: 'Proxy provider',
   ruleProvider: 'Rule provider',
+  dnsRules: 'DNS rules',
   expire: 'Expires',
   noExpire: 'No expiry',
   updated: 'Updated',

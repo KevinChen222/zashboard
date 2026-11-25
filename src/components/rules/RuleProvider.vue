@@ -32,7 +32,7 @@
         {{ $t('updated') }} {{ fromNow(ruleProvider.updatedAt) }}
       </span>
       <button
-        v-if="ruleProvider.vehicleType !== 'Inline'"
+        v-if="ruleProvider.vehicleType.toLowerCase() !== 'inline'"
         :class="
           twMerge('btn btn-circle btn-ghost btn-xs sm:ml-1.5', isUpdating ? 'animate-spin' : '')
         "

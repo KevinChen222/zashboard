@@ -17,17 +17,17 @@
           </span>
           <span class="text-base-content/55 ml-4 text-xs tracking-wide">
             <HighlightText
-              :text="rule.type"
+              :text="displayType"
               :filter="rulesFilter"
             />
-            <template v-if="rule.payload"> : </template>
+            <template v-if="displayPayload"> : </template>
           </span>
           <span
             class="ml-2"
-            v-if="rule.payload"
+            v-if="displayPayload"
           >
             <HighlightText
-              :text="rule.payload"
+              :text="displayPayload"
               :filter="rulesFilter"
             />
           </span>
@@ -61,7 +61,7 @@
             @click.stop
           />
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <input
             v-if="rule.uuid || rule.extra"
             type="checkbox"
@@ -70,16 +70,50 @@
             @change="toggleRuleDisabledHandler"
             @click.stop
           />
-          <ProxyChainPath
-            :proxy="rule.proxy"
-            :selected="selected"
-            :collapsed="isCollapsed"
-            :show-now-node="displayNowNodeInRule"
-            :show-latency="displayLatencyInRule"
-            :filter="rulesFilter"
-            :interactive="!isCollapsed"
-            @update:selected="selected = $event"
-          />
+          <template v-if="singboxFormatted && !singboxFormatted.isProxyTarget">
+            <span
+              v-if="singboxFormatted.actionLabel"
+              class="badge badge-sm badge-soft font-mono text-xs"
+            >
+              <HighlightText
+                :text="singboxFormatted.actionLabel"
+                :filter="rulesFilter"
+              />
+            </span>
+            <span
+              v-if="singboxFormatted.optionsLabel"
+              class="text-base-content/60 text-xs"
+            >
+              <HighlightText
+                :text="singboxFormatted.optionsLabel"
+                :filter="rulesFilter"
+              />
+            </span>
+          </template>
+          <template v-else>
+            <ProxyChainPath
+              :proxy="rule.proxy"
+              :selected="selected"
+              :collapsed="isCollapsed"
+              :show-now-node="displayNowNodeInRule"
+              :show-latency="displayLatencyInRule"
+              :filter="rulesFilter"
+              :interactive="!isCollapsed"
+              @update:selected="selected = $event"
+            />
+            <span
+              v-if="singboxFormatted?.actionLabel"
+              class="badge badge-xs badge-soft font-mono"
+            >
+              {{ singboxFormatted.actionLabel }}
+            </span>
+            <span
+              v-if="singboxFormatted?.optionsLabel"
+              class="badge badge-xs badge-ghost text-base-content/60 font-mono"
+            >
+              {{ singboxFormatted.optionsLabel }}
+            </span>
+          </template>
         </div>
       </div>
 
@@ -101,15 +135,18 @@
 </template>
 
 <script setup lang="ts">
+import { can } from '@/assembly/backend'
 import { rulesFilter } from '@/store/rules'
 import { useBounceOnVisible } from '@/composables/use-bounce-on-visible'
 import { useRuleHitTooltip } from '@/composables/use-rule-hit-tooltip'
 import {
+  getRuleSetProviderName,
   getRuleSize,
   isRuleDisabled,
   isUpdateableRuleSet as checkUpdateableRuleSet,
   toggleRuleDisabledWithSideEffects,
 } from '@/helper/rules'
+import { formatSingboxRule } from '@/helper/singbox-rules'
 import { notifyRequestError } from '@/helper/request-error'
 import { useTooltip } from '@/composables/use-tooltip'
 import { proxyGroupList } from '@/assembly/proxies'
@@ -159,6 +196,12 @@ const { t } = useI18n()
 const { showTip } = useTooltip()
 const { showRuleHitTip } = useRuleHitTooltip()
 
+const singboxFormatted = computed(() =>
+  can('singboxRulesFormat') ? formatSingboxRule(props.rule) : null,
+)
+const displayType = computed(() => singboxFormatted.value?.displayType ?? props.rule.type)
+const displayPayload = computed(() => singboxFormatted.value?.displayPayload ?? props.rule.payload)
+
 const size = computed(() => getRuleSize(props.rule))
 
 const isUpdating = ref(false)
@@ -170,9 +213,10 @@ const isUpdateableRuleSet = computed(() => checkUpdateableRuleSet(props.rule))
 const updateRuleProviderClickHandler = async () => {
   if (isUpdating.value) return
 
+  const providerName = getRuleSetProviderName(props.rule) || props.rule.payload
   isUpdating.value = true
   try {
-    await updateRuleProvider(props.rule.payload)
+    await updateRuleProvider(providerName)
     await fetchRules()
   } catch (e) {
     notifyRequestError(e)

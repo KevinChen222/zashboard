@@ -119,6 +119,7 @@ const zh: LANG_MESSAGE = {
   darkTheme: '深色主题',
   proxyProvider: '代理提供商',
   ruleProvider: '规则提供商',
+  dnsRules: 'DNS 规则',
   expire: '到期时间',
   noExpire: '不限时',
   updated: '更新于',

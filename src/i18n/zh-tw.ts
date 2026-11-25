@@ -119,6 +119,7 @@ const zhTW: LANG_MESSAGE = {
   darkTheme: '深色主題',
   proxyProvider: '代理提供商',
   ruleProvider: '規則提供商',
+  dnsRules: 'DNS 規則',
   expire: '到期時間',
   noExpire: '不限時',
   updated: '更新於',

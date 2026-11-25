@@ -48,23 +48,32 @@
 </template>
 
 <script setup lang="ts">
-import { renderRules, renderRulesProvider, rulesFilter, rulesTabShow } from '@/store/rules'
+import { can } from '@/assembly/backend'
+import {
+  activeTabRules,
+  renderRules,
+  renderRulesProvider,
+  rulesFilter,
+  rulesTabShow,
+} from '@/store/rules'
 import DialogWrapper from '@/components/common/DialogWrapper.vue'
 import HighlightText from '@/components/common/HighlightText.vue'
 import ProxyChainPath from '@/components/common/ProxyChainPath.vue'
 import VirtualTable from '@/components/common/VirtualTable.vue'
 import ProxyGroupPanel from '@/components/proxies/ProxyGroupPanel.vue'
 import { proxyGroupList } from '@/assembly/proxies'
-import { fetchRules, rules, updateRuleProvider } from '@/assembly/rules'
+import { fetchRules, updateRuleProvider } from '@/assembly/rules'
 import { useRuleHitTooltip } from '@/composables/use-rule-hit-tooltip'
 import {
   EMPTY_CELL,
   formatRuleHitCount,
+  getRuleSetProviderName,
   getRuleSize,
   isRuleDisabled,
   isUpdateableRuleSet,
   toggleRuleDisabledWithSideEffects,
 } from '@/helper/rules'
+import { formatSingboxRule } from '@/helper/singbox-rules'
 import { RULE_TAB_TYPE } from '@/constant'
 import { notifyRequestError } from '@/helper/request-error'
 import { fromNow, PROXIES_PARENT_CLASS } from '@/helper/utils'
@@ -82,14 +91,22 @@ const { showRuleHitTip } = useRuleHitTooltip()
 const ruleIndexMap = computed(() => {
   const map = new Map<Rule, number>()
 
-  rules.value.forEach((rule, index) => map.set(rule, index + 1))
+  activeTabRules.value.forEach((rule, index) => map.set(rule, index + 1))
 
   return map
 })
 
-const hasRuleExtra = computed(() => rules.value.some((rule) => rule.extra))
+const getFormattedRule = (rule: Rule) =>
+  can('singboxRulesFormat') ? formatSingboxRule(rule) : null
+
 const ruleColumnVisibility = computed(() => ({
-  hitMiss: hasRuleExtra.value,
+  hitMiss: activeTabRules.value.some((rule) => rule.extra),
+  size: activeTabRules.value.some((rule) => {
+    const size = getRuleSize(rule)
+    return typeof size === 'number' && size !== -1
+  }),
+  status: activeTabRules.value.some((rule) => Boolean(rule.uuid || rule.extra)),
+  actions: activeTabRules.value.some((rule) => isUpdateableRuleSet(rule)),
 }))
 
 const updatingProviders = ref<string[]>([])
@@ -108,7 +125,11 @@ const groupDialogTitle = computed(() => {
     return ''
   }
 
-  return rule.payload ? `${rule.type}: ${rule.payload}` : rule.type
+  const formatted = getFormattedRule(rule)
+  const displayType = formatted?.displayType ?? rule.type
+  const displayPayload = formatted?.displayPayload ?? rule.payload
+
+  return displayPayload ? `${displayType}: ${displayPayload}` : displayType
 })
 
 const ruleRowClass = (rule: Rule) => (isRuleSelectable(rule) ? 'cursor-pointer' : undefined)
@@ -179,32 +200,72 @@ const ruleColumns: ColumnDef<Rule>[] = [
   {
     header: () => t('type'),
     id: 'type',
-    accessorFn: (rule) => rule.type,
-    cell: ({ row }) => h(HighlightText, { text: row.original.type, filter: rulesFilter.value }),
+    accessorFn: (rule) => getFormattedRule(rule)?.displayType ?? rule.type,
+    cell: ({ row }) => {
+      const displayType = getFormattedRule(row.original)?.displayType ?? row.original.type
+      return h(HighlightText, { text: displayType, filter: rulesFilter.value })
+    },
     meta: { cellClass: 'w-40' },
   },
   {
     header: () => t('content'),
     id: 'payload',
-    accessorFn: (rule) => rule.payload,
-    cell: ({ row }) =>
-      row.original.payload
-        ? h(HighlightText, { text: row.original.payload, filter: rulesFilter.value })
-        : h('span', { class: 'opacity-40' }, EMPTY_CELL),
+    accessorFn: (rule) => getFormattedRule(rule)?.displayPayload ?? rule.payload,
+    cell: ({ row }) => {
+      const displayPayload = getFormattedRule(row.original)?.displayPayload ?? row.original.payload
+      return displayPayload
+        ? h(HighlightText, { text: displayPayload, filter: rulesFilter.value })
+        : h('span', { class: 'opacity-40' }, EMPTY_CELL)
+    },
   },
   {
     header: () => t('proxyGroup'),
     id: 'proxy',
     accessorFn: (rule) => rule.proxy,
-    cell: ({ row }) =>
-      h(ProxyChainPath, {
+    cell: ({ row }) => {
+      const formatted = getFormattedRule(row.original)
+      if (formatted && !formatted.isProxyTarget) {
+        return h('div', { class: 'flex items-center gap-1.5' }, [
+          formatted.actionLabel
+            ? h('span', { class: 'badge badge-sm badge-soft font-mono text-xs' }, [
+                h(HighlightText, { text: formatted.actionLabel, filter: rulesFilter.value }),
+              ])
+            : null,
+          formatted.optionsLabel
+            ? h('span', { class: 'text-base-content/60 text-xs' }, [
+                h(HighlightText, { text: formatted.optionsLabel, filter: rulesFilter.value }),
+              ])
+            : null,
+        ])
+      }
+
+      const proxyNode = h(ProxyChainPath, {
         proxy: row.original.proxy,
         collapsed: true,
         interactive: false,
         showNowNode: displayNowNodeInRule.value,
         showLatency: displayLatencyInRule.value,
         filter: rulesFilter.value,
-      }),
+      })
+
+      if (!formatted?.actionLabel && !formatted?.optionsLabel) {
+        return proxyNode
+      }
+
+      return h('div', { class: 'flex items-center gap-1.5' }, [
+        proxyNode,
+        formatted.actionLabel
+          ? h('span', { class: 'badge badge-xs badge-soft font-mono' }, formatted.actionLabel)
+          : null,
+        formatted.optionsLabel
+          ? h(
+              'span',
+              { class: 'badge badge-xs badge-ghost text-base-content/60 font-mono' },
+              formatted.optionsLabel,
+            )
+          : null,
+      ])
+    },
   },
   {
     header: () => t('ruleCount'),
@@ -280,10 +341,11 @@ const ruleColumns: ColumnDef<Rule>[] = [
     header: () => t('actions'),
     id: 'actions',
     enableSorting: false,
-    cell: ({ row }) =>
-      isUpdateableRuleSet(row.original)
-        ? updateButton(row.original.payload, () => updateProviderHandler(row.original.payload))
-        : null,
+    cell: ({ row }) => {
+      if (!isUpdateableRuleSet(row.original)) return null
+      const providerName = getRuleSetProviderName(row.original) || row.original.payload
+      return updateButton(providerName, () => updateProviderHandler(providerName))
+    },
     meta: { cellClass: 'w-20' },
   },
 ]
@@ -340,7 +402,7 @@ const providerColumns: ColumnDef<RuleProvider>[] = [
     id: 'actions',
     enableSorting: false,
     cell: ({ row }) =>
-      row.original.vehicleType === 'Inline'
+      row.original.vehicleType.toLowerCase() === 'inline'
         ? null
         : updateButton(row.original.name, () => updateProviderHandler(row.original.name)),
     meta: { cellClass: 'w-20' },

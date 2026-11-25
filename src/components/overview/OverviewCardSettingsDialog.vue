@@ -31,6 +31,8 @@
 </template>
 
 <script setup lang="ts">
+import { can } from '@/assembly/backend'
+import { rules } from '@/assembly/rules'
 import DialogWrapper from '@/components/common/DialogWrapper.vue'
 import { OVERVIEW_CARD } from '@/constant'
 import { overviewCardOrder } from '@/store/settings'
@@ -51,10 +53,24 @@ const cardKeyToLabelMap: Record<string, string> = {
   HonkStatsCard: 'honkStatsCard',
 }
 
+const isCardSupported = (card: OVERVIEW_CARD) => {
+  if (card === OVERVIEW_CARD.RuleHitCountCard) {
+    return can('ruleHitCount') || rules.value.some((rule) => rule.extra)
+  }
+
+  if (card === OVERVIEW_CARD.HonkStatsCard) {
+    return can('runtimeStats')
+  }
+
+  return true
+}
+
 const orderedCards = computed({
-  get: () => overviewCardOrder.value,
+  get: () => overviewCardOrder.value.filter((item) => isCardSupported(item.card)),
   set: (newOrder: { card: OVERVIEW_CARD; visible: boolean }[]) => {
-    overviewCardOrder.value = newOrder
+    const visibleCards = new Set(newOrder.map((item) => item.card))
+    const preservedHidden = overviewCardOrder.value.filter((item) => !visibleCards.has(item.card))
+    overviewCardOrder.value = [...newOrder, ...preservedHidden]
   },
 })
 </script>

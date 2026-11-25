@@ -37,9 +37,11 @@ import {
   upgradeCoreAPI,
   upgradeUIAPI,
 } from '@/api/clash'
+import { Core, core } from '@/assembly/backend'
 import { proxyMap } from '@/assembly/proxies/state'
 import { PROXY_TYPE } from '@/constant'
 import { getRealConnectionId } from '@/helper/detour-chain'
+import { formatSingboxConnectionRule, unwrapSingboxRuleProxy } from '@/helper/singbox-rules'
 import type { ClashConnectionRawMessage, Connection, Log } from '@/types'
 import { head } from 'lodash'
 import { shallowRef, watch } from 'vue'
@@ -79,6 +81,10 @@ const accessor: ConnectionAccessor = {
   start: (connection) => asClash(connection).start,
   rule: (connection) => {
     const clash = asClash(connection)
+
+    if (core.value === Core.Singbox && !clash.rulePayload && clash.rule) {
+      return formatSingboxConnectionRule(clash.rule)
+    }
 
     return clash.rulePayload ? `${clash.rule}: ${clash.rulePayload}` : clash.rule
   },
@@ -214,11 +220,12 @@ export const clashDriver: Driver = {
 
       return {
         rules: (ruleRes.data.rules ?? []).map((rule) => {
-          const proxy = rule.proxy
+          const rawProxy = rule.proxy
 
           return {
             ...rule,
-            proxy: proxy.startsWith('route(') ? proxy.slice(6, -1) : proxy,
+            rawProxy,
+            proxy: unwrapSingboxRuleProxy(rawProxy),
           }
         }),
         providers: Object.values(providerRes.data.providers ?? {}),

@@ -1,7 +1,7 @@
 <template>
   <SettingItem
     :setting-key="PROXIES_ITEM_KEYS.groupTestUrls"
-    :when="independentLatencyTest"
+    :when="can('independentLatency') && independentLatencyTest"
   >
     <div class="setting-item-label">
       {{ $t('groupTestUrls') }}
@@ -83,6 +83,7 @@
 </template>
 
 <script setup lang="ts">
+import { can } from '@/assembly/backend'
 import SettingItem from '@/components/settings/SettingItem.vue'
 import { PROXIES_ITEM_KEYS } from '@/config/settings-items'
 import { useTooltip } from '@/composables/use-tooltip'

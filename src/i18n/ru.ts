@@ -119,6 +119,7 @@ const ru: LANG_MESSAGE = {
   darkTheme: 'Темная тема',
   proxyProvider: 'Провайдер прокси',
   ruleProvider: 'Провайдер правил',
+  dnsRules: 'DNS правила',
   expire: 'Истекает',
   noExpire: 'Нет',
   updated: 'Обновлено',

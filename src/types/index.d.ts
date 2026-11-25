@@ -87,6 +87,7 @@ export type Rule = {
   type: string
   payload: string
   proxy: string
+  rawProxy?: string
   size: number
   uuid: string
   disabled?: boolean

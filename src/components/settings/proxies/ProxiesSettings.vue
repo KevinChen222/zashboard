@@ -85,7 +85,10 @@
             v-model="IPv6test"
           />
         </SettingItem>
-        <SettingItem :setting-key="k.independentLatencyTest">
+        <SettingItem
+          :setting-key="k.independentLatencyTest"
+          :when="can('independentLatency')"
+        >
           <div class="setting-item-label">
             {{ $t('independentLatencyTest') }}
             <QuestionMarkCircleIcon
@@ -301,8 +304,8 @@ const hasVisibleLatencyItems = computed(() => {
     isVisibleLowLatency.value ||
     isVisibleMediumLatency.value ||
     isVisibleIpv6Test.value ||
-    isVisibleIndependentLatencyTest.value ||
-    (independentLatencyTest.value && isVisibleGroupTestUrls.value)
+    (can('independentLatency') && isVisibleIndependentLatencyTest.value) ||
+    (can('independentLatency') && independentLatencyTest.value && isVisibleGroupTestUrls.value)
   )
 })
 

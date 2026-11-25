@@ -48,12 +48,12 @@
           <div class="flex flex-col gap-2">
             <div
               v-for="rule in renderRules"
-              :key="rule.payload"
+              :key="rule.uuid || `${activeTabRules.indexOf(rule)}-${rule.type}-${rule.payload}`"
               class="base-container"
             >
               <RuleCard
                 :rule="rule"
-                :index="rules.indexOf(rule) + 1"
+                :index="activeTabRules.indexOf(rule) + 1"
               />
             </div>
           </div>
@@ -70,9 +70,9 @@
       </template>
       <template v-slot="{ item: rule }: { item: Rule }">
         <RuleCard
-          :key="rule.payload"
+          :key="rule.uuid || `${activeTabRules.indexOf(rule)}-${rule.type}-${rule.payload}`"
           :rule="rule"
-          :index="rules.indexOf(rule) + 1"
+          :index="activeTabRules.indexOf(rule) + 1"
         />
       </template>
     </VirtualScroller>
@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { renderRules, renderRulesProvider, rulesTabShow } from '@/store/rules'
+import { activeTabRules, renderRules, renderRulesProvider, rulesTabShow } from '@/store/rules'
 import VirtualScroller from '@/components/common/VirtualScroller.vue'
 import RulesCtrl from '@/components/controls/RulesCtrl'
 import RuleCard from '@/components/rules/RuleCard.vue'
@@ -90,7 +90,7 @@ import RulesTable from '@/components/rules/RulesTable.vue'
 import { usePaddingForViews } from '@/composables/use-padding-for-views'
 import { LIST_DISPLAY_STYLE, RULE_TAB_TYPE } from '@/constant'
 import { can } from '@/assembly/backend'
-import { fetchRules, rules } from '@/assembly/rules'
+import { fetchRules } from '@/assembly/rules'
 import { ruleDisplayStyle } from '@/store/settings'
 import type { Rule } from '@/types'
 import { computed, provide, ref } from 'vue'
@@ -115,6 +115,9 @@ const padding = computed(() =>
   isRuleTable.value ? tablePadding.padding.value : cardPadding.padding.value,
 )
 const isVirtualScroller = computed(() => {
-  return rulesTabShow.value === RULE_TAB_TYPE.RULES && renderRules.value.length > 200
+  return (
+    (rulesTabShow.value === RULE_TAB_TYPE.RULES || rulesTabShow.value === RULE_TAB_TYPE.DNS) &&
+    renderRules.value.length > 200
+  )
 })
 </script>
