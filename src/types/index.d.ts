@@ -15,6 +15,7 @@ export type Backend = {
   label?: string
   disableUpgradeCore?: boolean
   disableTunMode?: boolean
+  safeRestartUrl?: string
 }
 
 export type Config = {

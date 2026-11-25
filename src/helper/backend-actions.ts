@@ -8,6 +8,11 @@ import {
 } from '@/assembly/config'
 import { fetchProxies, flushSmartGroupWeights, hasSmartGroup } from '@/assembly/proxies'
 import { fetchRules } from '@/assembly/rules'
+import {
+  hasSafeRestartAttention,
+  isSafeRestartRunning,
+  openSafeRestartModal,
+} from '@/assembly/safe-restart'
 import { restartCore } from '@/assembly/version'
 import { BACKEND_ITEM_KEYS } from '@/config/settings-items'
 import { showConfirmDialog } from '@/helper/confirm-dialog'
@@ -23,6 +28,7 @@ import {
   ArrowUpCircleIcon,
   DocumentTextIcon,
   PencilSquareIcon,
+  ShieldExclamationIcon,
   TrashIcon,
 } from '@heroicons/vue/24/outline'
 import { computed, ref, type Component, type Ref } from 'vue'
@@ -35,6 +41,7 @@ export type BackendAction = {
   icon: Component
   running: boolean
   opensModal: boolean
+  attention?: boolean
   run: () => void
 }
 
@@ -120,6 +127,18 @@ export const backendActions = computed<BackendAction[]>(() => {
           () => setTimeout(reloadAll, 500),
           { title: 'restartCore', message: 'restartCoreConfirm' },
         ),
+    })
+  }
+
+  if (can('safeRestart')) {
+    actions.push({
+      key: k.safeRestartMomo,
+      label: 'safeRestartMomo',
+      icon: ShieldExclamationIcon,
+      running: isSafeRestartRunning.value,
+      opensModal: true,
+      attention: hasSafeRestartAttention.value,
+      run: () => openSafeRestartModal(),
     })
   }
 

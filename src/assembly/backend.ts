@@ -2,6 +2,7 @@ import { displayAllFeatures } from '@/store/settings'
 import { activeBackend } from '@/store/setup'
 import { computed, ref } from 'vue'
 import { daeCapabilities } from './capabilities'
+import { safeRestartAvailable } from './safe-restart'
 
 export enum Core {
   Mihomo = 'mihomo',
@@ -30,6 +31,7 @@ export const showDisplayAllFeatures = computed(() => !!activeBackend.value && is
 export type Cap =
   | 'coreUpgrade'
   | 'coreRestart'
+  | 'safeRestart'
   | 'dashboardUpgrade'
   | 'reloadConfigs'
   | 'updateConfigs'
@@ -90,6 +92,7 @@ const clashCaps = computed<Caps>(() => {
   return {
     coreUpgrade: mihomoOrForkCore,
     coreRestart: mihomoOrForkCore,
+    safeRestart: singbox && safeRestartAvailable.value,
     dashboardUpgrade: mihomoOrForkCore || singbox,
     reloadConfigs: mihomoOrForkCore,
     updateConfigs: mihomoOrForkCore,

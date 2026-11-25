@@ -672,6 +672,56 @@ const en = {
     'Under info level, hide DNS, neighbor, inbound, and latency probe noise and show readable connection summaries. Click any entry to inspect its full raw logs.',
   switchToRawLogs: 'Concise view (click for raw logs)',
   switchToConciseLogs: 'Raw view (click for concise logs)',
+  safeRestartMomo: 'Safe Restart Momo (Kill-Switch)',
+  safeRestartOpenStatus: 'View Safe Restart / Kill-Switch Status',
+  safeRestartKillSwitchActive: 'WAN Kill-Switch Active',
+  safeRestartKillSwitchActiveTip:
+    'Router OS firewall is blocking all WAN IPv4/IPv6 traffic and direct LAN DNS to prevent ISP IP leaks.',
+  safeRestartKillSwitchLifted: 'WAN kill-switch lifted and connectivity restored',
+  safeRestartDoneTitle: 'Safe Restart Complete',
+  safeRestartReconnecting: 'Reconnecting to Clash API...',
+  safeRestartReconnected: 'Kill-switch lifted and dashboard reconnected',
+  safeRestartIntroTitle: 'Zero-Leak Safe Restart Sequence',
+  safeRestartIntroDesc:
+    'Mandatory pre-flight config check runs first (aborts with zero downtime if invalid). Once passed, router OS blocks WAN & direct DNS until Momo/sing-box and transparent proxy pass readiness checks.',
+  safeRestartLanReassurance:
+    'LAN management (SSH :22 / HTTP :80) stays reachable throughout. If recovery exceeds {maxSec}s, the router automatically restores WAN and warns you that Momo is not running.',
+  safeRestartPreflightPassed: 'Configuration preflight passed. Ready for safe restart.',
+  safeRestartStepsTitle: 'Restart Steps',
+  safeRestartElapsed: 'Elapsed {seconds}s',
+  safeRestartElapsedWithMax: 'Elapsed {seconds}s / {maxSec}s',
+  safeRestartAutoUnlockedTitle: 'Momo Is Not Running! WAN Auto-Restored (Unproxied)',
+  safeRestartAutoUnlockedDesc:
+    'Recovery failed within the {maxSec}s failsafe limit, so the router automatically lifted the kill-switch. Traffic is now exiting directly via your ISP WAN without proxy protection. Pause or close sensitive apps (e.g. Claude), inspect the logs below, fix the config, and restart Momo.',
+  safeRestartPreflightAbortedTitle: 'Pre-flight Check Failed — No Network Interruption',
+  safeRestartPreflightAbortedDesc:
+    'Safe restart was aborted before engaging the kill-switch. Momo is still running normally. Fix the configuration error below and try again.',
+  safeRestartPreflightAndRetry: 'Preflight & Retry Safe Restart',
+  safeRestartConnErrAutoUnlocked:
+    'Momo failed to start: the {maxSec}s failsafe auto-restored direct WAN (unproxied). Pause sensitive apps and open Safe Restart Status below to inspect logs and retry.',
+  safeRestartStepPreflight: '1. Pre-flight Config Validation',
+  safeRestartStepPreflightDesc: 'Check active Momo/sing-box config before touching the firewall',
+  safeRestartStepKillSwitchOn: '2. Engage OS Kill-Switch',
+  safeRestartStepKillSwitchOnDesc: 'Block WAN IPv4/IPv6 forwarding and direct LAN DNS queries',
+  safeRestartStepRestarting: '3. Restart Momo / sing-box',
+  safeRestartStepRestartingDesc: 'Restart core service and rebuild transparent proxy rules',
+  safeRestartStepVerifying: '4. Verify Core & Transparent Proxy',
+  safeRestartStepVerifyingDesc: 'Verify sing-box process, nftables, proxy ports, and Clash API',
+  safeRestartStepKillSwitchOff: '5. Release Kill-Switch & Restore WAN',
+  safeRestartStepKillSwitchOffDesc: 'Remove temporary kill-switch table and restore connectivity',
+  safeRestartPollRetrying: 'Retrying status poll during restart (attempt {count})...',
+  safeRestartFailedTitle: 'Operation Failed',
+  safeRestartShowLogs: 'Show logs',
+  safeRestartHideLogs: 'Hide logs',
+  safeRestartUnlockConfirmTitle: 'Confirm Emergency WAN Unlock?',
+  safeRestartUnlockConfirmDesc:
+    'Momo may still be stopped. Lifting the kill-switch now will allow direct LAN traffic to exit via your ISP WAN IP.',
+  safeRestartUnlockConfirmAction: 'Confirm Emergency Unlock',
+  safeRestartDoNotClose: 'Safe restart in progress, please do not close...',
+  safeRestartEmergencyUnlock: 'Emergency Unlock WAN',
+  safeRestartRetry: 'Retry Safe Restart',
+  safeRestartPreflightOnly: 'Preflight Check',
+  safeRestartStartAction: 'Start Safe Restart',
 }
 
 export type LANG_MESSAGE = typeof en

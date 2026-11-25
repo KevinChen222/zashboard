@@ -12,6 +12,7 @@ import { computed, nextTick, ref } from 'vue'
 import { can, core, Core, resetCore } from './backend'
 import { fetchCapabilities, resetCapabilities } from './capabilities'
 import { driver } from './driver'
+import { probeSafeRestartCapability, resetSafeRestartForBackend } from './safe-restart'
 
 export const version = ref()
 export const isCoreUpdateAvailable = ref(false)
@@ -88,6 +89,9 @@ const probeBackendVersion = async (backend: Backend) => {
         latency: 0,
         message: getRequestErrorMessage(e),
       }
+      if (backend.type === 'clash') {
+        void probeSafeRestartCapability(backend)
+      }
     }
     throw e
   }
@@ -99,6 +103,8 @@ const probeBackendVersion = async (backend: Backend) => {
 
   if (backend.type === 'dae') {
     await fetchCapabilities()
+  } else if (core.value === Core.Singbox) {
+    void probeSafeRestartCapability(backend)
   }
 
   backendProbe.value = {
@@ -129,6 +135,7 @@ export const probeActiveBackend = () => {
 
   resetCore()
   resetCapabilities()
+  resetSafeRestartForBackend(backend?.uuid ?? '')
   version.value = ''
   isCoreUpdateAvailable.value = false
   backendProbe.value = backend

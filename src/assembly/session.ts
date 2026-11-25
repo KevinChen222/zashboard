@@ -9,7 +9,8 @@ import { initLogs, stopLogs } from './logs'
 import { initSatistic, stopSatistic } from './overview'
 import { fetchProxies } from './proxies'
 import { fetchRules } from './rules'
-import { probeActiveBackend } from './version'
+import { registerSafeRestartReconnectHandler } from './safe-restart'
+import { backendProbe, probeActiveBackend } from './version'
 
 const EVENT_DEBOUNCE = 400
 
@@ -70,5 +71,16 @@ export const startBackendSession = async () => {
     fetchDaeRuntime().catch(() => {})
   }
 }
+
+registerSafeRestartReconnectHandler(async () => {
+  const targetUuid = activeBackend.value?.uuid
+  await startBackendSession()
+  return Boolean(
+    targetUuid &&
+    activeBackend.value?.uuid === targetUuid &&
+    backendProbe.value?.uuid === targetUuid &&
+    backendProbe.value?.status === 'connected',
+  )
+})
 
 watch(activeBackend, startBackendSession, { immediate: true })

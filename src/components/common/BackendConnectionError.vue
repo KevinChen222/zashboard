@@ -29,6 +29,22 @@
           {{ detail || $t('backendConnectionFailed') }}
         </div>
 
+        <div
+          v-if="showAutoUnlockedAlert"
+          class="border-warning/50 bg-warning/15 text-warning rounded-lg border px-3 py-2 text-xs leading-5"
+        >
+          {{ $t('safeRestartConnErrAutoUnlocked', { maxSec: killSwitchMaxSec }) }}
+        </div>
+
+        <button
+          v-if="showSafeRestartRecovery"
+          class="btn btn-warning btn-sm"
+          @click="openSafeRestartModal()"
+        >
+          <ShieldExclamationIcon class="h-4 w-4" />
+          {{ $t('safeRestartOpenStatus') }}
+        </button>
+
         <div class="flex gap-2">
           <button
             class="btn btn-primary btn-sm flex-1"
@@ -91,6 +107,17 @@
 
 <script setup lang="ts">
 import { probeBackend } from '@/assembly/probe'
+import {
+  isAutoUnlockedWarning,
+  isKillSwitchActive,
+  isSafeRestartRunning,
+  killSwitchMaxSec,
+  openSafeRestartModal,
+  safeRestartAvailable,
+  safeRestartReconnecting,
+  safeRestartStatus,
+  showSafeRestartModal,
+} from '@/assembly/safe-restart'
 import { startBackendSession } from '@/assembly/session'
 import { backendProbe } from '@/assembly/version'
 import { ROUTE_NAME } from '@/constant'
@@ -105,7 +132,12 @@ import {
   openBackendManager,
   setActiveBackend,
 } from '@/store/setup'
-import { ChevronRightIcon, ExclamationTriangleIcon, ServerIcon } from '@heroicons/vue/24/outline'
+import {
+  ChevronRightIcon,
+  ExclamationTriangleIcon,
+  ServerIcon,
+  ShieldExclamationIcon,
+} from '@heroicons/vue/24/outline'
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -132,7 +164,29 @@ watch(
 
 const route = useRoute()
 const visible = computed(
-  () => failed.value && backendManagerView.value === null && route.name !== ROUTE_NAME.setup,
+  () =>
+    failed.value &&
+    !showSafeRestartModal.value &&
+    !safeRestartReconnecting.value &&
+    backendManagerView.value === null &&
+    route.name !== ROUTE_NAME.setup,
+)
+
+const showSafeRestartRecovery = computed(
+  () =>
+    safeRestartAvailable.value &&
+    (isKillSwitchActive.value ||
+      isSafeRestartRunning.value ||
+      isAutoUnlockedWarning.value ||
+      safeRestartStatus.value?.state === 'failed'),
+)
+
+const showAutoUnlockedAlert = computed(
+  () =>
+    safeRestartAvailable.value &&
+    safeRestartStatus.value?.state === 'failed' &&
+    safeRestartStatus.value?.auto_unlocked === true &&
+    !isKillSwitchActive.value,
 )
 
 const label = computed(() => (activeBackend.value ? getLabelFromBackend(activeBackend.value) : ''))

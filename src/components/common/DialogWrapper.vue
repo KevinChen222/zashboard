@@ -44,6 +44,7 @@
             {{ title }}
             <slot name="title-right" />
             <button
+              v-if="!preventClose"
               type="button"
               class="btn btn-circle btn-ghost btn-xs absolute top-2 right-2"
               aria-label="close"
@@ -85,10 +86,11 @@ const SETTLE_TIMEOUT = 450
 type SwipeState = 'idle' | 'pending' | 'dragging' | 'settling' | 'dismissing' | 'rejected'
 
 const isOpen = defineModel<boolean>()
-defineProps<{
+const props = defineProps<{
   noPadding?: boolean
   boxClass?: string
   title?: string
+  preventClose?: boolean
 }>()
 const emits = defineEmits<{
   (e: 'enter'): void
@@ -188,6 +190,7 @@ function onTouchStart(event: TouchEvent) {
   if (swipeState.value !== 'idle') return
 
   if (
+    props.preventClose ||
     !isOpen.value ||
     !window.matchMedia(MOBILE_MEDIA_QUERY).matches ||
     event.touches.length !== 1
@@ -312,6 +315,7 @@ function resetSwipe() {
 }
 
 function close() {
+  if (props.preventClose) return
   isOpen.value = false
 }
 function enter() {

@@ -57,6 +57,12 @@ export const SETTINGS_CATEGORIES: SettingsCategory[] = [
         section: 'settingsSectionCoreOperations',
       },
       {
+        key: `${SETTINGS_MENU_KEY.backend}.safeRestartMomo`,
+        label: 'safeRestartMomo',
+        section: 'settingsSectionCoreOperations',
+        keywords: ['momo', 'restart', 'killswitch', 'safe', 'sing-box'],
+      },
+      {
         key: `${SETTINGS_MENU_KEY.backend}.reloadConfigs`,
         label: 'reloadConfigs',
         section: 'settingsSectionCoreOperations',

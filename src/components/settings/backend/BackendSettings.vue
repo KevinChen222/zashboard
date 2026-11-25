@@ -44,10 +44,19 @@
           :key="action.key"
           :setting-key="action.key"
         >
-          <div class="setting-item-label">{{ $t(action.label) }}</div>
+          <div class="setting-item-label flex items-center gap-2">
+            <span>{{ $t(action.label) }}</span>
+            <span
+              v-if="action.attention"
+              class="bg-warning h-2 w-2 animate-pulse rounded-full"
+            ></span>
+          </div>
           <button
-            :class="['btn btn-sm min-w-11', action.key === k.upgradeCore && 'btn-neutral']"
-            :disabled="action.running"
+            :class="[
+              'btn btn-sm min-w-11',
+              action.attention ? 'btn-warning' : action.key === k.upgradeCore && 'btn-neutral',
+            ]"
+            :disabled="action.running && !action.opensModal"
             :aria-label="$t(action.label)"
             @click="action.run()"
           >

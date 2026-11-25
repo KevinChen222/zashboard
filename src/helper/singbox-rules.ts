@@ -163,19 +163,24 @@ export const unwrapSingboxRuleProxy = (rawProxy: string): string => {
   return rawProxy
 }
 
-export const isSingboxRouteAction = (rawProxy: string): boolean => {
-  const trimmed = (rawProxy || '').trim()
+export const isSingboxProtocolAction = (rawProxy: string): boolean => {
+  const trimmed = (rawProxy || '').trim().toLowerCase()
   return (
     trimmed === 'hijack-dns' ||
     trimmed.startsWith('hijack-dns(') ||
     trimmed === 'sniff' ||
     trimmed.startsWith('sniff(') ||
     trimmed.startsWith('sniff-') ||
-    trimmed.startsWith('resolve(') ||
     trimmed === 'resolve' ||
-    trimmed.startsWith('bypass(') ||
+    trimmed.startsWith('resolve(') ||
+    trimmed === 'route-options' ||
     trimmed.startsWith('route-options(')
   )
+}
+
+export const isSingboxRouteAction = (rawProxy: string): boolean => {
+  const trimmed = (rawProxy || '').trim().toLowerCase()
+  return isSingboxProtocolAction(trimmed) || trimmed === 'bypass' || trimmed.startsWith('bypass(')
 }
 
 export const isSingboxDnsRule = (
@@ -185,21 +190,30 @@ export const isSingboxDnsRule = (
   firstRouteActionIndex: number,
 ): boolean => {
   const raw = (rule.rawProxy ?? rule.proxy ?? '').trim()
+  const lower = raw.toLowerCase()
 
-  if (isSingboxRouteAction(raw)) {
-    return false
-  }
-
-  if (raw.startsWith('predefined(')) {
+  if (isSingboxProtocolAction(lower)) {
     return true
   }
 
-  if (/(?:^|[,(])(?:rewrite-ttl=|disable-cache|client-subnet=)/.test(raw)) {
+  if (lower === 'bypass' || lower.startsWith('bypass(')) {
+    return false
+  }
+
+  if (lower.startsWith('predefined(')) {
+    return true
+  }
+
+  if (/(?:^|[,(])(?:rewrite-ttl=|disable-cache|client-subnet=)/i.test(raw)) {
     return true
   }
 
   if (/(?:^|[\s(])(?:preferred_by|query_type)=/.test(rule.payload || '')) {
     return true
+  }
+
+  if (lower === 'reject' || lower.startsWith('reject(')) {
+    return firstRouteActionIndex > 0 && indexInList < firstRouteActionIndex
   }
 
   const routeMatch = /^route\(([^,)]+)/i.exec(raw)

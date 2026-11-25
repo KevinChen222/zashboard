@@ -115,7 +115,7 @@
             v-for="action in menuActions"
             :key="action.key"
             class="hover:bg-base-200 flex items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors disabled:opacity-50"
-            :disabled="action.running"
+            :disabled="action.running && !action.opensModal"
             @click="runAction(action)"
           >
             <span
@@ -125,9 +125,14 @@
             <component
               v-else
               :is="action.icon"
-              class="h-4 w-4 flex-none opacity-60"
+              class="h-4 w-4 flex-none"
+              :class="action.attention ? 'text-warning' : 'opacity-60'"
             />
             <span class="whitespace-nowrap">{{ $t(action.label) }}</span>
+            <span
+              v-if="action.attention"
+              class="bg-warning ml-auto h-2 w-2 flex-none animate-pulse rounded-full"
+            ></span>
           </button>
         </div>
       </Transition>
@@ -277,7 +282,7 @@ const hoverOpenActions = (event: PointerEvent) => {
 }
 
 const runAction = (action: BackendAction) => {
-  if (action.running) return
+  if (action.running && !action.opensModal) return
 
   action.run()
   if (action.opensModal) close()

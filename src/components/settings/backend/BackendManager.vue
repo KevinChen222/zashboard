@@ -235,6 +235,7 @@ watch(
       label: backend.label || '',
       disableUpgradeCore: backend.disableUpgradeCore || false,
       disableTunMode: backend.disableTunMode || false,
+      ...(backend.safeRestartUrl ? { safeRestartUrl: backend.safeRestartUrl } : {}),
     }
   },
   { immediate: true },

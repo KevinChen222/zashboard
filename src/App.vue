@@ -7,8 +7,10 @@ import BackendConnectionError from './components/common/BackendConnectionError.v
 import BackendSwitchToast from './components/common/BackendSwitchToast.vue'
 import BackendManager from './components/settings/backend/BackendManager.vue'
 import DaeConfigModal from './components/settings/backend/DaeConfigModal.vue'
+import SafeRestartModal from './components/settings/backend/SafeRestartModal.vue'
 import UpdateConfigModal from './components/settings/backend/UpdateConfigModal.vue'
 import UpgradeCoreModal from './components/settings/backend/UpgradeCoreModal.vue'
+import { showSafeRestartModal } from '@/assembly/safe-restart'
 import { useAppearanceVars } from './composables/use-appearance-vars'
 import { useOverscrollLock } from './composables/use-overscroll-lock'
 import { useThemeColor } from './composables/use-theme-color'
@@ -143,6 +145,7 @@ useKeyboard()
     <UpgradeCoreModal v-model="showUpgradeCoreModal" />
     <UpdateConfigModal v-model="showUpdateConfigModal" />
     <DaeConfigModal v-model="showDaeConfigModal" />
+    <SafeRestartModal v-model="showSafeRestartModal" />
     <ConfirmDialogHost />
     <div
       ref="toast"

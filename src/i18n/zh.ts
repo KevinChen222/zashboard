@@ -655,6 +655,56 @@ const zh: LANG_MESSAGE = {
     '在 info 级别下隐藏 DNS、邻居发现、入站及测速等杂项日志，仅展示可读的连接访问摘要；点击任意日志仍可查看同一连接的完整原始日志',
   switchToRawLogs: '当前为精简日志（点击切换为原始日志）',
   switchToConciseLogs: '当前为原始日志（点击切换为精简日志）',
+  safeRestartMomo: '安全重启 Momo (断网防泄露)',
+  safeRestartOpenStatus: '查看安全重启 / 断网锁定状态',
+  safeRestartKillSwitchActive: '已开启系统级断网锁定',
+  safeRestartKillSwitchActiveTip:
+    '路由器已阻断 WAN 出入流量（IPv4/IPv6）与局域网直连 DNS，防止泄露真实宽带 IP。',
+  safeRestartKillSwitchLifted: '系统级断网锁定已解除，网络已恢复',
+  safeRestartDoneTitle: '安全重启已完成',
+  safeRestartReconnecting: '正在重新连接控制面板...',
+  safeRestartReconnected: '断网保护已解除，控制面板已重新连接',
+  safeRestartIntroTitle: '零泄露安全重启流程',
+  safeRestartIntroDesc:
+    '重启前强制执行配置预检（配置异常直接中止，零断网）；通过后在路由器系统层阻断 WAN 流量与直连 DNS，待 Momo/sing-box 与透明代理全部就绪后再恢复外网。',
+  safeRestartLanReassurance:
+    '期间局域网管理（SSH :22 / HTTP :80）始终可用；若超过 {maxSec} 秒仍未恢复，路由器将自动恢复外网并强提示 Momo 未正常运行。',
+  safeRestartPreflightPassed: '配置预检通过，当前配置可安全重启。',
+  safeRestartStepsTitle: '执行步骤',
+  safeRestartElapsed: '已耗时 {seconds}s',
+  safeRestartElapsedWithMax: '已耗时 {seconds}s / {maxSec}s',
+  safeRestartAutoUnlockedTitle: 'Momo 未正常运行！已自动恢复外网（无代理直连）',
+  safeRestartAutoUnlockedDesc:
+    '重启未能在 {maxSec} 秒内通过就绪校验，路由器已触发超时保护并自动解除断网锁定。当前网络为无代理直连状态，建议暂停或关闭 Claude 等敏感应用，排查下方日志并修复配置后重新启动 Momo。',
+  safeRestartPreflightAbortedTitle: '配置预检未通过，未触发断网',
+  safeRestartPreflightAbortedDesc:
+    '已安全中止重启流程，当前 Momo 仍在正常运行，网络未受影响。请根据下方错误修复配置后再试。',
+  safeRestartPreflightAndRetry: '重新预检并安全重启',
+  safeRestartConnErrAutoUnlocked:
+    'Momo 未正常运行：已触发 {maxSec} 秒断网保护并自动恢复外网（当前处于无代理直连状态）。请暂停敏感应用并点击下方查看日志与重试。',
+  safeRestartStepPreflight: '1. 预检核心配置',
+  safeRestartStepPreflightDesc: '校验当前 Momo 配置有效性，避免错误配置导致断网',
+  safeRestartStepKillSwitchOn: '2. 开启 OS 级断网锁定',
+  safeRestartStepKillSwitchOnDesc: '阻断 WAN IPv4/IPv6 转发与直连 DNS，杜绝重启空窗期泄露',
+  safeRestartStepRestarting: '3. 重启 Momo / sing-box',
+  safeRestartStepRestartingDesc: '重新拉起核心进程并重建透明代理规则',
+  safeRestartStepVerifying: '4. 验证核心与透明代理就绪',
+  safeRestartStepVerifyingDesc: '确认 sing-box 进程、nftables 规则、代理端口与 Clash API 均正常',
+  safeRestartStepKillSwitchOff: '5. 解除断网锁定并恢复网络',
+  safeRestartStepKillSwitchOffDesc: '移除临时阻断表，恢复全网代理连接',
+  safeRestartPollRetrying: '重启期间状态轮询重试中（第 {count} 次）...',
+  safeRestartFailedTitle: '操作未能完成',
+  safeRestartShowLogs: '查看日志详情',
+  safeRestartHideLogs: '收起日志详情',
+  safeRestartUnlockConfirmTitle: '确认紧急解除断网锁定？',
+  safeRestartUnlockConfirmDesc:
+    '当前 Momo 可能尚未恢复运行。解除锁定后，局域网设备将直接通过家庭宽带 WAN 访问外网，存在暴露真实 IP 的风险。',
+  safeRestartUnlockConfirmAction: '确认解除断网锁定',
+  safeRestartDoNotClose: '正在安全重启中，请勿关闭窗口...',
+  safeRestartEmergencyUnlock: '紧急解除断网锁定',
+  safeRestartRetry: '重试安全重启',
+  safeRestartPreflightOnly: '仅预检配置',
+  safeRestartStartAction: '开始安全重启',
 }
 
 export default zh

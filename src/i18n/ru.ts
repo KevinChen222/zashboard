@@ -675,6 +675,56 @@ const ru: LANG_MESSAGE = {
     'На уровне info скрывает шум DNS, neighbor, inbound и проверок задержки, показывая краткие сводки соединений. Нажмите на запись, чтобы открыть полные исходные логи соединения.',
   switchToRawLogs: 'Краткий вид (нажмите для исходных логов)',
   switchToConciseLogs: 'Исходный вид (нажмите для кратких логов)',
+  safeRestartMomo: 'Безопасный перезапуск Momo (Kill-Switch)',
+  safeRestartOpenStatus: 'Статус безопасного перезапуска / Kill-Switch',
+  safeRestartKillSwitchActive: 'Активирован системный Kill-Switch WAN',
+  safeRestartKillSwitchActiveTip:
+    'Межсетевой экран роутера блокирует весь WAN-трафик (IPv4/IPv6) и прямой DNS из LAN для предотвращения утечки IP провайдера.',
+  safeRestartKillSwitchLifted: 'Kill-Switch снят, сетевое подключение восстановлено',
+  safeRestartDoneTitle: 'Безопасный перезапуск завершён',
+  safeRestartReconnecting: 'Переподключение к Clash API...',
+  safeRestartReconnected: 'Kill-Switch снят, панель успешно переподключена',
+  safeRestartIntroTitle: 'Безопасный перезапуск без утечек IP',
+  safeRestartIntroDesc:
+    'Сначала выполняется обязательная проверка конфигурации (при ошибке перезапуск отменяется без отключения сети). Затем на уровне ОС роутера блокируются WAN и прямой DNS до полной готовности Momo/sing-box и прозрачного прокси.',
+  safeRestartLanReassurance:
+    'Доступ к роутеру по LAN (SSH :22 / HTTP :80) сохраняется. Если восстановление займёт более {maxSec} с, роутер автоматически восстановит WAN и предупредит, что Momo не запущен.',
+  safeRestartPreflightPassed: 'Предварительная проверка конфигурации прошла успешно.',
+  safeRestartStepsTitle: 'Этапы выполнения',
+  safeRestartElapsed: 'Прошло {seconds} с',
+  safeRestartElapsedWithMax: 'Прошло {seconds} с / {maxSec} с',
+  safeRestartAutoUnlockedTitle: 'Momo не запущен! WAN восстановлен автоматически (без прокси)',
+  safeRestartAutoUnlockedDesc:
+    'Не удалось подтвердить запуск Momo за {maxSec} с — сработал тайм-аут безопасности и Kill-Switch был автоматически снят. Сейчас трафик идёт напрямую через провайдера без прокси. Приостановите чувствительные приложения (например, Claude), проверьте логи ниже, исправьте конфигурацию и перезапустите Momo.',
+  safeRestartPreflightAbortedTitle: 'Проверка конфигурации не пройдена — сеть не отключалась',
+  safeRestartPreflightAbortedDesc:
+    'Перезапуск прерван до включения Kill-Switch. Текущий экземпляр Momo продолжает работать в штатном режиме. Исправьте ошибку ниже и повторите попытку.',
+  safeRestartPreflightAndRetry: 'Проверить и перезапустить снова',
+  safeRestartConnErrAutoUnlocked:
+    'Momo не запустился: тайм-аут {maxSec} с автоматически восстановил прямой WAN (без прокси). Приостановите чувствительные приложения и откройте статус ниже для просмотра логов и повтора.',
+  safeRestartStepPreflight: '1. Проверка конфигурации',
+  safeRestartStepPreflightDesc: 'Валидация текущей конфигурации Momo/sing-box до блокировки сети',
+  safeRestartStepKillSwitchOn: '2. Включение системного Kill-Switch',
+  safeRestartStepKillSwitchOnDesc: 'Блокировка WAN IPv4/IPv6 и прямых DNS-запросов из LAN',
+  safeRestartStepRestarting: '3. Перезапуск Momo / sing-box',
+  safeRestartStepRestartingDesc: 'Перезапуск ядра и пересоздание правил прозрачного прокси',
+  safeRestartStepVerifying: '4. Проверка готовности ядра и прокси',
+  safeRestartStepVerifyingDesc: 'Проверка процесса sing-box, nftables, портов прокси и Clash API',
+  safeRestartStepKillSwitchOff: '5. Снятие Kill-Switch и восстановление WAN',
+  safeRestartStepKillSwitchOffDesc: 'Удаление временной таблицы блокировки и восстановление сети',
+  safeRestartPollRetrying: 'Повтор опроса статуса во время перезапуска (попытка {count})...',
+  safeRestartFailedTitle: 'Операция завершилась с ошибкой',
+  safeRestartShowLogs: 'Показать логи',
+  safeRestartHideLogs: 'Скрыть логи',
+  safeRestartUnlockConfirmTitle: 'Подтвердить экстренную разблокировку WAN?',
+  safeRestartUnlockConfirmDesc:
+    'Momo всё ещё может быть остановлен. Снятие Kill-Switch сейчас разрешит прямой выход трафика LAN через IP вашего провайдера.',
+  safeRestartUnlockConfirmAction: 'Подтвердить разблокировку WAN',
+  safeRestartDoNotClose: 'Идёт безопасный перезапуск, не закрывайте окно...',
+  safeRestartEmergencyUnlock: 'Экстренно разблокировать WAN',
+  safeRestartRetry: 'Повторить безопасный перезапуск',
+  safeRestartPreflightOnly: 'Только проверка',
+  safeRestartStartAction: 'Начать безопасный перезапуск',
 }
 
 export default ru
