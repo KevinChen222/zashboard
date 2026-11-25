@@ -666,6 +666,11 @@ const en = {
   proxyDetourMatchPlaceholder: 'Provider / Prefix / /Regex',
   proxyDetourTargetPlaceholder: 'Upstream detour group or node',
   autoDetectDetourImport: 'Auto-import',
+  conciseInfoLogs: 'Concise Info Logs',
+  conciseInfoLogsTip:
+    'Under info level, hide DNS, neighbor, inbound, and latency probe noise and show readable connection summaries. Click any entry to inspect its full raw logs.',
+  switchToRawLogs: 'Concise view (click for raw logs)',
+  switchToConciseLogs: 'Raw view (click for concise logs)',
 }
 
 export type LANG_MESSAGE = typeof en

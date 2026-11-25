@@ -649,6 +649,11 @@ const zh: LANG_MESSAGE = {
   proxyDetourMatchPlaceholder: '代理集 / 节点前缀 / /正则',
   proxyDetourTargetPlaceholder: '前置跳板组或节点名',
   autoDetectDetourImport: '自动导入',
+  conciseInfoLogs: '精简 Info 日志',
+  conciseInfoLogsTip:
+    '在 info 级别下隐藏 DNS、邻居发现、入站及测速等杂项日志，仅展示可读的连接访问摘要；点击任意日志仍可查看同一连接的完整原始日志',
+  switchToRawLogs: '当前为精简日志（点击切换为原始日志）',
+  switchToConciseLogs: '当前为原始日志（点击切换为精简日志）',
 }
 
 export default zh

@@ -649,6 +649,11 @@ const zhTW: LANG_MESSAGE = {
   proxyDetourMatchPlaceholder: '代理集 / 節點前綴 / /正則',
   proxyDetourTargetPlaceholder: '前置跳板組或節點名',
   autoDetectDetourImport: '自動匯入',
+  conciseInfoLogs: '精簡 Info 日誌',
+  conciseInfoLogsTip:
+    '在 info 層級下隱藏 DNS、鄰居探索、入站及測速等雜項日誌，僅顯示可讀的連線存取摘要；點擊任意日誌仍可檢視同一連線的完整原始日誌',
+  switchToRawLogs: '目前為精簡日誌（點擊切換為原始日誌）',
+  switchToConciseLogs: '目前為原始日誌（點擊切換為精簡日誌）',
 }
 
 export default zhTW

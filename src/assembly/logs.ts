@@ -1,5 +1,7 @@
 import { useStorage } from '@/composables/use-storage'
 import { LOG_LEVEL } from '@/constant'
+import { simplifySingboxInfoLogs } from '@/helper/singbox-log-core'
+import { singboxSimplifyInfoLogs } from '@/store/logs'
 import { logRetentionLimit, sourceIPLabelList } from '@/store/settings'
 import { activeBackend } from '@/store/setup'
 import type { Log, LogWithSeq } from '@/types'
@@ -12,6 +14,15 @@ import { driver } from './driver'
 export const logs = shallowRef<LogWithSeq[]>([])
 export const isPaused = ref(false)
 export const logLevel = useStorage<string>('config/log-level', LOG_LEVEL.Info)
+
+export const isSingboxSimplifyActive = computed(
+  () =>
+    can('singboxLogSimplify') && singboxSimplifyInfoLogs.value && logLevel.value === LOG_LEVEL.Info,
+)
+
+export const displayLogs = computed(() =>
+  isSingboxSimplifyActive.value ? simplifySingboxInfoLogs(logs.value) : logs.value,
+)
 
 export const supportedLogLevels = computed(() => {
   const levels = [LOG_LEVEL.Debug, LOG_LEVEL.Info, LOG_LEVEL.Warning, LOG_LEVEL.Error]

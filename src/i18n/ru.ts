@@ -669,6 +669,11 @@ const ru: LANG_MESSAGE = {
   proxyDetourMatchPlaceholder: 'Провайдер / Префикс / /Regex',
   proxyDetourTargetPlaceholder: 'Группа или узел ретрансляции',
   autoDetectDetourImport: 'Автоимпорт',
+  conciseInfoLogs: 'Краткий режим Info',
+  conciseInfoLogsTip:
+    'На уровне info скрывает шум DNS, neighbor, inbound и проверок задержки, показывая краткие сводки соединений. Нажмите на запись, чтобы открыть полные исходные логи соединения.',
+  switchToRawLogs: 'Краткий вид (нажмите для исходных логов)',
+  switchToConciseLogs: 'Исходный вид (нажмите для кратких логов)',
 }
 
 export default ru

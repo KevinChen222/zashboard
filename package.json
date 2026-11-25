@@ -1,6 +1,6 @@
 {
   "name": "zashboard",
-  "version": "3.30.0-singbox.1",
+  "version": "3.30.0-singbox.2",
   "description": "A Dashboard Using Clash API",
   "license": "MIT",
   "type": "module",
@@ -20,8 +20,10 @@
     "preview": "vite preview",
     "test:bench": "node test/bench.mjs",
     "test:detour": "node --test tests/detour-chain.test.ts",
+    "test:logs": "node --test tests/singbox-log.test.ts",
     "test:mock": "node test/mock-server.mjs",
     "test:setup": "node test/setup.mjs",
+    "test:unit": "node --test tests/*.test.ts",
     "test:verify": "node test/verify.mjs",
     "type-check": "vue-tsc --build --force"
   },

@@ -51,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { logs } from '@/assembly/logs'
+import { displayLogs, logs } from '@/assembly/logs'
 import DialogWrapper from '@/components/common/DialogWrapper.vue'
 import VirtualScroller from '@/components/common/VirtualScroller.vue'
 import LogsCtrl from '@/components/controls/LogsCtrl.tsx'
@@ -81,11 +81,11 @@ const { padding } = usePaddingForViews({
 })
 
 const renderLogs = computed(() => {
-  let renderLogs = logs.value
+  let renderLogs = displayLogs.value
   const searchRegex = toSearchRegex(logFilter.value)
 
   if (logFilter.value || logTypeFilter.value) {
-    renderLogs = logs.value.filter((log) => {
+    renderLogs = renderLogs.filter((log) => {
       if (searchRegex && !searchRegex.testAny([log.payload, log.time, log.type])) {
         return false
       }

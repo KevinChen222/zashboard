@@ -27,7 +27,7 @@ jobs:
 
       - name: Test, Type check & Lint
         run: |
-          pnpm run test:detour
+          pnpm run test:unit
           pnpm run type-check
           pnpm run lint
 

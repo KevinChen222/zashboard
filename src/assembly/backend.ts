@@ -42,6 +42,7 @@ export type Cap =
   | 'customGlobalNode'
   | 'logTypeFilter'
   | 'logConnectionDetail'
+  | 'singboxLogSimplify'
   | 'disconnectOnModeChange'
   | 'traceLogLevel'
   | 'extraLogLevels'
@@ -99,6 +100,7 @@ const clashCaps = computed<Caps>(() => {
     customGlobalNode: singbox,
     logTypeFilter: singbox,
     logConnectionDetail: singbox,
+    singboxLogSimplify: singbox,
     disconnectOnModeChange: singbox,
 
     traceLogLevel: honk || singbox,

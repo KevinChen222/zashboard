@@ -58,7 +58,7 @@ const emits = defineEmits<{
 const connectionID = computed(() => {
   if (!can('logConnectionDetail') || props.connectionDetailDisabled) return null
 
-  return getLogConnectionID(props.log.payload)
+  return props.log.connectionId ?? getLogConnectionID(props.log.payload)
 })
 
 const seqWithPadding = computed(() => {

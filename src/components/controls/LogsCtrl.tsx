@@ -1,12 +1,28 @@
 import { can } from '@/assembly/backend'
-import { initLogs, isPaused, logLevel, logs, supportedLogLevels } from '@/assembly/logs'
+import {
+  displayLogs,
+  initLogs,
+  isPaused,
+  isSingboxSimplifyActive,
+  logLevel,
+  logs,
+  supportedLogLevels,
+} from '@/assembly/logs'
 import { useCtrlsBar } from '@/composables/use-ctrls-bar'
 import { useTooltip } from '@/composables/use-tooltip'
 import { LIST_DISPLAY_STYLE, LOG_LEVEL } from '@/constant'
-import { logFilter, logFilterEnabled, logFilterRegex, logTypeFilter } from '@/store/logs'
+import { extractSingboxDisplayLogType } from '@/helper/singbox-log-core'
+import {
+  logFilter,
+  logFilterEnabled,
+  logFilterRegex,
+  logTypeFilter,
+  singboxSimplifyInfoLogs,
+} from '@/store/logs'
 import { logDisplayStyle, logRetentionLimit, logSearchHistory } from '@/store/settings'
 import {
   ArrowDownTrayIcon,
+  FunnelIcon,
   LinkIcon,
   LinkSlashIcon,
   PauseIcon,
@@ -54,9 +70,22 @@ export default defineComponent({
     const logFilterOptions = computed(() => {
       const types: string[] = []
       const levels: string[] = []
+      const sourceLogs = displayLogs.value
 
-      if (can('logTypeFilter')) {
-        for (const log of logs.value) {
+      if (isSingboxSimplifyActive.value) {
+        for (const log of sourceLogs) {
+          const type = extractSingboxDisplayLogType(log.payload)
+
+          if (type && !types.includes(type)) {
+            types.push(type)
+          }
+
+          if (!levels.includes(log.type)) {
+            levels.push(log.type)
+          }
+        }
+      } else if (can('logTypeFilter')) {
+        for (const log of sourceLogs) {
           const startIndex = log.payload.startsWith('[') ? log.payload.indexOf(']') + 2 : 0
           const endIndex = log.payload.indexOf(':', startIndex)
           const type =
@@ -73,7 +102,7 @@ export default defineComponent({
           }
         }
       } else {
-        for (const log of logs.value) {
+        for (const log of sourceLogs) {
           const index = log.payload.indexOf(' ')
           const type = index === -1 ? log.payload : log.payload.slice(0, index)
 
@@ -94,6 +123,16 @@ export default defineComponent({
           return aIdx - bIdx
         }),
         types: types.sort(),
+      }
+    })
+
+    watch(isSingboxSimplifyActive, () => {
+      if (
+        logTypeFilter.value &&
+        !logFilterOptions.value.levels.includes(logTypeFilter.value) &&
+        !logFilterOptions.value.types.includes(logTypeFilter.value)
+      ) {
+        logTypeFilter.value = ''
       }
     })
 
@@ -232,6 +271,27 @@ export default defineComponent({
                     v-model={logFilterEnabled.value}
                   />
                 </div>
+                {can('singboxLogSimplify') && (
+                  <div class="setting-item">
+                    <div class="setting-item-label flex items-center gap-2">
+                      <span>{t('conciseInfoLogs')}</span>
+                      <div
+                        onMouseenter={(e) =>
+                          showTip(e, t('conciseInfoLogsTip'), {
+                            appendTo: 'parent',
+                          })
+                        }
+                      >
+                        <QuestionMarkCircleIcon class="h-4 w-4" />
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      class="toggle"
+                      v-model={singboxSimplifyInfoLogs.value}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </DialogWrapper>
@@ -241,6 +301,28 @@ export default defineComponent({
       const buttons = (
         <div class="flex items-center gap-2">
           {settingsModal}
+          {can('singboxLogSimplify') && logLevel.value === LOG_LEVEL.Info && (
+            <button
+              class={['btn btn-circle btn-sm', singboxSimplifyInfoLogs.value && 'btn-primary']}
+              onClick={() => {
+                singboxSimplifyInfoLogs.value = !singboxSimplifyInfoLogs.value
+                updateTip(
+                  singboxSimplifyInfoLogs.value ? t('switchToRawLogs') : t('switchToConciseLogs'),
+                )
+              }}
+              onMouseenter={(e) =>
+                showTip(
+                  e,
+                  singboxSimplifyInfoLogs.value ? t('switchToRawLogs') : t('switchToConciseLogs'),
+                  {
+                    appendTo: 'parent',
+                  },
+                )
+              }
+            >
+              <FunnelIcon class="h-4 w-4" />
+            </button>
+          )}
           <button
             class="btn btn-circle btn-sm"
             onClick={downloadAllLogs}

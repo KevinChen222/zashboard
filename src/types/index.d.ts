@@ -159,7 +159,11 @@ export type Log = {
   payload: string
 }
 
-export type LogWithSeq = Log & { seq: number; time: string }
+export type LogWithSeq = Log & {
+  seq: number
+  time: string
+  connectionId?: string
+}
 
 export type DNSQuery = {
   AD: boolean

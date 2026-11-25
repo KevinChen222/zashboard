@@ -88,7 +88,7 @@ const columns: ColumnDef<LogWithSeq>[] = [
 const connectionIDOf = (log: LogWithSeq) => {
   if (!can('logConnectionDetail')) return null
 
-  return getLogConnectionID(log.payload)
+  return log.connectionId ?? getLogConnectionID(log.payload)
 }
 
 const rowClass = (log: LogWithSeq) => (connectionIDOf(log) ? 'cursor-pointer' : undefined)
