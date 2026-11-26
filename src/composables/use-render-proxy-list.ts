@@ -1,6 +1,7 @@
 import { latencyMapOf, smartOrderMap, type LatencyMap } from '@/assembly/proxies'
 import { NOT_CONNECTED, PROXY_SORT_TYPE } from '@/constant'
 import { isProxyGroup } from '@/helper'
+import { getDisplayProxyName } from '@/helper/proxy-display'
 import {
   isProxyNodeSearchMode,
   matchProxySearchKeyword,
@@ -100,9 +101,11 @@ const getSortFunc = (sortType: PROXY_SORT_TYPE, latencyMap: LatencyMap) => {
   }
   switch (sortType) {
     case PROXY_SORT_TYPE.NAME_ASC:
-      return (a: string, b: string) => a.localeCompare(b)
+      return (a: string, b: string) =>
+        getDisplayProxyName(a).localeCompare(getDisplayProxyName(b)) || a.localeCompare(b)
     case PROXY_SORT_TYPE.NAME_DESC:
-      return (a: string, b: string) => b.localeCompare(a)
+      return (a: string, b: string) =>
+        getDisplayProxyName(b).localeCompare(getDisplayProxyName(a)) || b.localeCompare(a)
     case PROXY_SORT_TYPE.LATENCY_ASC:
       return (a: string, b: string) => latencyFor(a) - latencyFor(b)
     case PROXY_SORT_TYPE.LATENCY_DESC:

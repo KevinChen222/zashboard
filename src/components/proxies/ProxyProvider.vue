@@ -36,7 +36,10 @@
           </button>
         </div>
       </div>
-      <div class="mt-2 space-y-1.5">
+      <div
+        v-if="subscriptionInfo || updatedAtText"
+        class="mt-2 space-y-1.5"
+      >
         <div
           v-if="subscriptionInfo"
           class="space-y-1"
@@ -53,8 +56,11 @@
             <span>{{ subscriptionInfo.expireStr }}</span>
           </div>
         </div>
-        <div class="text-base-content/60 text-xs">
-          {{ $t('updated') }} {{ fromNow(proxyProvider.updatedAt) }}
+        <div
+          v-if="updatedAtText"
+          class="text-base-content/60 text-xs"
+        >
+          {{ $t('updated') }} {{ updatedAtText }}
         </div>
       </div>
     </template>
@@ -94,6 +100,7 @@ const proxyProvider = computed(() =>
   proxyProviederList.value.find((group) => group.name === props.name)!,
 )
 const allProxies = computed(() => proxyProvider.value.proxies.map((node) => node.name) ?? [])
+const updatedAtText = computed(() => fromNow(proxyProvider.value.updatedAt))
 const { renderProxies, proxiesCount } = useRenderProxyList(allProxies)
 
 const subscriptionInfo = computed(() => {

@@ -76,12 +76,12 @@ import {
 import { formatSingboxRule } from '@/helper/singbox-rules'
 import { RULE_TAB_TYPE } from '@/constant'
 import { notifyRequestError } from '@/helper/request-error'
+import { getTimestampValue } from '@/helper/time'
 import { fromNow, PROXIES_PARENT_CLASS } from '@/helper/utils'
 import { displayLatencyInRule, displayNowNodeInRule } from '@/store/settings'
 import type { Rule, RuleProvider } from '@/types'
 import { ArrowPathIcon } from '@heroicons/vue/24/outline'
 import type { ColumnDef } from '@tanstack/vue-table'
-import dayjs from 'dayjs'
 import { computed, h, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -393,8 +393,8 @@ const providerColumns: ColumnDef<RuleProvider>[] = [
     id: 'updatedAt',
     accessorFn: (provider) => fromNow(provider.updatedAt),
     sortingFn: (prev, next) =>
-      dayjs(prev.original.updatedAt).valueOf() - dayjs(next.original.updatedAt).valueOf(),
-    cell: ({ getValue }) => h('span', {}, String(getValue() ?? '')),
+      getTimestampValue(prev.original.updatedAt) - getTimestampValue(next.original.updatedAt),
+    cell: ({ getValue }) => h('span', {}, String(getValue() || '-')),
     meta: { cellClass: 'w-40' },
   },
   {

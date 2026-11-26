@@ -28,13 +28,19 @@
       </span>
     </div>
     <div class="mt-1 flex items-center justify-between sm:mt-0 sm:shrink-0">
-      <span class="text-base-content/50 text-xs">
-        {{ $t('updated') }} {{ fromNow(ruleProvider.updatedAt) }}
+      <span
+        v-if="updatedAtText"
+        class="text-base-content/50 text-xs"
+      >
+        {{ $t('updated') }} {{ updatedAtText }}
       </span>
       <button
         v-if="ruleProvider.vehicleType.toLowerCase() !== 'inline'"
         :class="
-          twMerge('btn btn-circle btn-ghost btn-xs sm:ml-1.5', isUpdating ? 'animate-spin' : '')
+          twMerge(
+            'btn btn-circle btn-ghost btn-xs ml-auto sm:ml-1.5',
+            isUpdating ? 'animate-spin' : '',
+          )
         "
         @click="updateRuleProviderClickHandler"
       >
@@ -55,12 +61,13 @@ import { fetchRules } from '@/assembly/rules'
 import type { RuleProvider } from '@/types'
 import { ArrowPathIcon } from '@heroicons/vue/24/outline'
 import { twMerge } from 'tailwind-merge'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 const isUpdating = ref(false)
 const props = defineProps<{
   ruleProvider: RuleProvider
   index: number
 }>()
+const updatedAtText = computed(() => fromNow(props.ruleProvider.updatedAt))
 
 const updateRuleProviderClickHandler = async () => {
   if (isUpdating.value) return

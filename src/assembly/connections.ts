@@ -1,5 +1,6 @@
 import { getConnectionGeoIPInfoSync } from '@/api/connection-geoip'
 import { CONNECTIONS_TABLE_ACCESSOR_KEY, PROXY_CHAIN_DIRECTION } from '@/constant'
+import { getDisplayProxyName } from '@/helper/proxy-display'
 import { getIPLabelFromMap } from '@/helper/source-ip'
 import { fromNow, prettyBytesHelper } from '@/helper/utils'
 import { autoDisconnectIdleUDP, autoDisconnectIdleUDPTime } from '@/store/settings'
@@ -157,9 +158,11 @@ export const getConnectionDisplayValue = (
     case CONNECTIONS_TABLE_ACCESSOR_KEY.Rule:
       return accessor.rule(connection)
     case CONNECTIONS_TABLE_ACCESSOR_KEY.Chains:
-      return getVisibleChains(connection, options).join(' → ')
+      return getVisibleChains(connection, options)
+        .map((chain) => getDisplayProxyName(chain))
+        .join(' → ')
     case CONNECTIONS_TABLE_ACCESSOR_KEY.Outbound:
-      return accessor.chains(connection)[0] || ''
+      return getDisplayProxyName(accessor.chains(connection)[0] || '')
     case CONNECTIONS_TABLE_ACCESSOR_KEY.DlSpeed:
       return `${prettyBytesHelper(connection.downloadSpeed)}/s`
     case CONNECTIONS_TABLE_ACCESSOR_KEY.UlSpeed:

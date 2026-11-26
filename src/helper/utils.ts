@@ -1,4 +1,5 @@
 import { MIN_PROXY_CARD_WIDTH, PROXY_CARD_SIZE } from '@/constant'
+import { isValidTimestamp } from '@/helper/time'
 import type { Backend, BackendType } from '@/types'
 import { useMediaQuery } from '@vueuse/core'
 import dayjs from 'dayjs'
@@ -26,7 +27,11 @@ export const prettySpeedHelper = (bytes: number, opts?: Options) => {
     : prettyBytesHelper(value, { maximumFractionDigits, ...opts })
 }
 
-export const fromNow = (timestamp: string | number) => {
+export const fromNow = (timestamp?: string | number | null) => {
+  if (!isValidTimestamp(timestamp)) {
+    return ''
+  }
+
   return dayjs(timestamp).fromNow()
 }
 

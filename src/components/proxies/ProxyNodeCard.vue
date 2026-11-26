@@ -16,11 +16,11 @@
       /><span
         v-if="active"
         class="text-primary-content"
-        >{{ node.name }}</span
+        >{{ displayName }}</span
       ><span
         v-else
         class="text-base-content"
-        >{{ node.name }}</span
+        >{{ displayName }}</span
       >
     </div>
 
@@ -46,6 +46,7 @@
 import { smartWeightsMap } from '@/assembly/proxies'
 import { PROXY_CARD_SIZE, PROXY_SORT_TYPE } from '@/constant'
 import { checkTruncation } from '@/helper/tooltip'
+import { getDisplayProxyName } from '@/helper/proxy-display'
 import {
   highlightProxyNode,
   highlightedProxyNode,
@@ -67,6 +68,7 @@ const props = defineProps<{
 }>()
 
 const node = computed(() => proxyMap.value[props.name])
+const displayName = computed(() => getDisplayProxyName(node.value.name))
 const isLatencyTesting = ref(false)
 const typeFormatter = (type: string) => {
   type = type.toLowerCase()

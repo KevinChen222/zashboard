@@ -8,21 +8,21 @@
     />
     <HighlightText
       v-if="filter"
-      :text="name"
+      :text="displayName"
       :filter="filter"
     />
-    <template v-else>{{ name }}</template>
+    <template v-else>{{ displayName }}</template>
     <span
-      v-if="dialerProxy"
+      v-if="displayDialerProxy"
       class="ml-1 inline-flex shrink-0 items-center gap-1 text-[0.85em] opacity-80"
     >
       <span class="italic">via</span>
       <HighlightText
         v-if="filter"
-        :text="dialerProxy"
+        :text="displayDialerProxy"
         :filter="filter"
       />
-      <template v-else>{{ dialerProxy }}</template>
+      <template v-else>{{ displayDialerProxy }}</template>
     </span>
   </div>
 </template>
@@ -31,6 +31,7 @@
 import HighlightText from '@/components/common/HighlightText.vue'
 import { proxyMap } from '@/assembly/proxies'
 import { getEffectiveDialerProxy } from '@/helper/detour-chain'
+import { getDisplayProxyName } from '@/helper/proxy-display'
 import { computed } from 'vue'
 import ProxyIcon from './ProxyIcon.vue'
 
@@ -49,10 +50,14 @@ const props = withDefaults(
 )
 
 const node = computed(() => proxyMap.value[props.name])
+const displayName = computed(() => getDisplayProxyName(props.name))
 const icon = computed(() => {
   return node.value?.icon
 })
 const dialerProxy = computed(() => {
   return getEffectiveDialerProxy(props.name)
+})
+const displayDialerProxy = computed(() => {
+  return dialerProxy.value ? getDisplayProxyName(dialerProxy.value) : ''
 })
 </script>
