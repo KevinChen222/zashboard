@@ -41,6 +41,10 @@ import { Core, core } from '@/assembly/backend'
 import { proxyMap } from '@/assembly/proxies/state'
 import { PROXY_TYPE } from '@/constant'
 import { getRealConnectionId } from '@/helper/detour-chain'
+import {
+  formatClashConnectionNetworkType,
+  getClashConnectionNetwork,
+} from '@/helper/singbox-connection'
 import { formatSingboxConnectionRule, unwrapSingboxRuleProxy } from '@/helper/singbox-rules'
 import type { ClashConnectionRawMessage, Connection, Log } from '@/types'
 import { head } from 'lodash'
@@ -57,16 +61,6 @@ import type {
 const done = (request: Promise<unknown>): Promise<void> => request.then(() => undefined)
 
 const asClash = (connection: Connection) => connection as ClashConnectionRawMessage
-
-const getNetwork = (c: ClashConnectionRawMessage) => {
-  const { destinationPort, sniffHost, network } = c.metadata
-
-  if ((destinationPort === '443' || sniffHost) && network === 'udp') {
-    return 'quic'
-  }
-
-  return network
-}
 
 const getHostname = (c: ClashConnectionRawMessage) =>
   c.metadata.host || c.metadata.sniffHost || c.metadata.destinationIP
@@ -91,12 +85,9 @@ const accessor: ConnectionAccessor = {
   rulePayload: (connection) => asClash(connection).rulePayload,
   sourceIP: (connection) => asClash(connection).metadata.sourceIP,
   sourcePort: (connection) => asClash(connection).metadata.sourcePort,
-  network: (connection) => getNetwork(asClash(connection)),
-  networkType: (connection) => {
-    const clash = asClash(connection)
-
-    return `${clash.metadata.type} | ${getNetwork(clash)}`
-  },
+  network: (connection) => getClashConnectionNetwork(asClash(connection).metadata),
+  networkType: (connection) =>
+    formatClashConnectionNetworkType(asClash(connection).metadata, core.value === Core.Singbox),
   hostname: (connection) => getHostname(asClash(connection)),
   host: (connection) => {
     const clash = asClash(connection)

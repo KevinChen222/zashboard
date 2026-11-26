@@ -393,4 +393,68 @@ describe('singbox-log-core', () => {
     )
     assert.equal(extractSingboxDisplayLogType('sing-box started (0.24s)'), 'sing-box')
   })
+
+  it('hides tun inbound DNS packet noise, hijack-dns, and dns server logs in compact info mode while keeping real traffic', () => {
+    const raw = newestFirst(
+      makeLog('[1537053993 0ms] inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:46574'),
+      makeLog('[2112081376 0ms] inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:9141'),
+      makeLog('[3834757972 0ms] inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:62373'),
+      makeLog('[3165224791 0ms] inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:60853'),
+      makeLog('[3165224791 1ms] dns/https[dns_proxy]: exchanged A googleapis.com. 60 IN A 1.2.3.4'),
+      makeLog(
+        '[3165224791 1ms] outbound/direct[direct-v4]: outbound packet connection to 223.5.5.5:53',
+      ),
+      makeLog('inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:53000'),
+      makeLog(
+        '[4100000001 0ms] inbound/tun[tun-in]: inbound packet connection from 172.19.0.1:53001',
+      ),
+      makeLog('[4100000001 0ms] router: hijack-dns'),
+      makeLog(
+        '[4100000001 1ms] outbound/direct[direct-v4]: outbound packet connection to 1.1.1.1:53',
+      ),
+      makeLog(
+        '[5528200001 0ms] inbound/tun[tun-in]: inbound connection from [fdfe:dcba:9876::1]:55282',
+      ),
+      makeLog(
+        '[5528200001 0ms] inbound/tun[tun-in]: inbound connection to content-autofill.googleapis.com:443',
+      ),
+      makeLog(
+        '[5528200001 2ms] outbound/shadowsocks[美洲落地/🇺🇸 德州家宽 t1转发]: outbound connection to content-autofill.googleapis.com:443',
+      ),
+      makeLog(
+        '[5528200001 2ms] outbound/anytls[主用机场/🇯🇵 FLOWER-JP-SZCT]: outbound connection to 198.51.100.20:443',
+      ),
+    )
+
+    const result = simplifySingboxInfoLogs(raw)
+    assert.equal(result.length, 1)
+    assert.equal(
+      result[0].payload,
+      '[TCP] [fdfe:dcba:9876::1]:55282 --> content-autofill.googleapis.com:443 using 美洲落地/🇺🇸 德州家宽 t1转发 (via 主用机场/🇯🇵 FLOWER-JP-SZCT)',
+    )
+  })
+
+  it('keeps tun inbound DNS packet logs visible at debug/warning level or when compact mode is off', () => {
+    const debugDns = makeLog(
+      '[1537053993 0ms] inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:46574',
+      'debug' as LOG_LEVEL,
+    )
+    const warnDns = makeLog(
+      '[2112081376 0ms] inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:9141',
+      'warning' as LOG_LEVEL,
+    )
+    const infoDns = makeLog(
+      '[3834757972 0ms] inbound/tun[tun-in]: inbound DNS packet from 172.19.0.1:62373',
+      'info' as LOG_LEVEL,
+    )
+
+    const raw = newestFirst(debugDns, warnDns, infoDns)
+
+    // Compact mode enabled: info DNS hidden, debug & warning preserved
+    const compact = simplifySingboxInfoLogs(raw, true)
+    assert.deepEqual(compact, newestFirst(debugDns, warnDns))
+
+    // Compact mode disabled: all logs preserved
+    assert.equal(simplifySingboxInfoLogs(raw, false), raw)
+  })
 })

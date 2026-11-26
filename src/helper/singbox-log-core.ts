@@ -6,6 +6,8 @@ const CONN_PREFIX_REGEX = /^\[(\d+)\s+([^\]]+)\]\s+(.*)$/
 const INBOUND_CONN_REGEX =
   /^inbound\/([a-z0-9_-]+)\[(.+)\]:\s+inbound\s+(packet\s+)?connection\s+(from|to)\s+(.+)$/i
 
+const INBOUND_DNS_REGEX = /^inbound\/([a-z0-9_-]+)\[(.+)\]:\s+inbound\s+dns\b/i
+
 const OUTBOUND_CONN_REGEX =
   /^outbound\/([a-z0-9_-]+)\[(.+)\]:\s+outbound\s+(packet\s+)?connection(?:\s+to\s+(.+))?$/i
 
@@ -18,10 +20,11 @@ const ROUTER_NEIGHBOR_REGEX = /^router:\s+found\s+neighbor:\s+[^,]+(?:,\s+hostna
 const ROUTER_PROCESS_REGEX = /^router:\s+found\s+(?:process|package)\b/i
 const ROUTER_SNIFFED_REGEX = /^router:\s+sniffed\s+protocol:\s+[^,]+(?:,\s+domain:\s+(.+))?$/i
 const ROUTER_MATCH_REGEX = /^router:\s+match\[\d+\]/i
+const ROUTER_HIJACK_DNS_REGEX = /^router:\s+.*hijack[- ]dns\b/i
 const ROUTER_REJECT_REGEX =
   /^router:\s+(?:connection\s+)?(rejected|dropped)(?:\s+(?:packet\s+)?connection(?:\s+to\s+(.+))?)?$/i
 
-const DNS_LOG_REGEX = /^dns:/i
+const DNS_LOG_REGEX = /^dns(?:\/[a-z0-9_-]+\[[^\]]+\])?:/i
 const DNS_INBOUND_TAG_REGEX = /(?:^|[-_])dns(?:[-_]|$)/i
 const IPV4_HOST_REGEX = /^(?:\d{1,3}\.){3}\d{1,3}$/
 
@@ -133,6 +136,8 @@ const formatConciseTrafficPayload = (conn: ConnectionRecord): string => {
 
 const isStandaloneInfoNoise = (body: string): boolean => {
   if (DNS_LOG_REGEX.test(body)) return true
+  if (INBOUND_DNS_REGEX.test(body)) return true
+  if (ROUTER_HIJACK_DNS_REGEX.test(body)) return true
   if (OUTBOUND_CONN_REGEX.test(body)) return true
   if (OUTBOUND_URLTEST_REGEX.test(body)) return true
   if (INBOUND_CONN_REGEX.test(body)) return true
@@ -197,6 +202,12 @@ export const simplifySingboxInfoLogs = (
     const body = prefixMatch[3]
     const conn = getOrCreateConn(connId)
 
+    if (INBOUND_DNS_REGEX.test(body)) {
+      conn.isDnsInbound = true
+      suppressedIndices.add(i)
+      continue
+    }
+
     const inboundMatch = body.match(INBOUND_CONN_REGEX)
     if (inboundMatch) {
       const [, inboundType, inboundTag, packetKeyword, direction, addr] = inboundMatch
@@ -205,7 +216,7 @@ export const simplifySingboxInfoLogs = (
       if (packetKeyword) {
         conn.isPacket = true
       }
-      if (conn.inboundType === 'direct' && DNS_INBOUND_TAG_REGEX.test(inboundTag)) {
+      if (DNS_INBOUND_TAG_REGEX.test(inboundTag)) {
         conn.isDnsInbound = true
       }
       if (direction.toLowerCase() === 'from') {
@@ -213,6 +224,12 @@ export const simplifySingboxInfoLogs = (
       } else {
         conn.inboundDest = addr.trim()
       }
+      suppressedIndices.add(i)
+      continue
+    }
+
+    if (ROUTER_HIJACK_DNS_REGEX.test(body)) {
+      conn.isDnsInbound = true
       suppressedIndices.add(i)
       continue
     }
